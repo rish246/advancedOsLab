@@ -6,9 +6,9 @@
 using namespace std;
 
 // declare all the jobs currently present in our system
-vector<string> nameOfJobs = {"MsWord", "NotePad", "Vscode"};
-vector<int> arrivalTimes = {0, 7, 16};
-vector<int> burstTimes = {10, 5, 8};
+vector<string> nameOfJobs = {"MsWord", "NotePad", "Vscode", "Intellij", "Google chrome"};
+vector<int> arrivalTimes = {0, 1, 2, 3, 4};
+vector<int> burstTimes = {2, 6, 4, 9, 12};
 
 
 // make a job class
@@ -73,6 +73,7 @@ int main()
     int totalWaitingTime = 0;
 
     // process jobs while there are jobs available in ready queue
+    // delay of counter time 
     while(!readyQueue.empty()){
         // get the first job from the readyQueue
         Job curJob = readyQueue.front(); readyQueue.pop();
@@ -95,6 +96,9 @@ int main()
 
     // print the job table 
 
+    // calculate the average waiting time
+    double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size()); 
+
     cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << endl;
     for(auto job : finishedJobs){
         job.printJobStatistics();
@@ -102,7 +106,8 @@ int main()
 
     // print the average waiting time of the system, total time to process the jobs
     cout << "Total time took to complete all the jobs in the ready queue = " << counter << " seconds" << endl;
-    cout << "Average waiting time = " << double(totalWaitingTime / nameOfJobs.size()) << endl;
+    cout << "Total waiting time in the system = " << totalWaitingTime << endl;
+    printf("Average waiting time of the system = %.2lf\n", averageWaitingTime);
 
 }
 
