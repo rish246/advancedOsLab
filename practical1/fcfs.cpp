@@ -54,6 +54,21 @@ void insertJobsInQueue(queue<Job> &readyQueue){
 
 }
 
+// function that will print important final information 
+// the final table
+// average waiting time of the system
+// total processing time of the system
+void printFinalInformation(vector<Job> finishedJobs, double averageWaitingTime, int totalProcessingTime){
+    cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << endl;
+    for(auto job : finishedJobs){
+        job.printJobStatistics();
+    }
+
+    // print the average waiting time of the system, total time to process the jobs
+    cout << "Total time took to complete all the jobs in the ready queue = " << totalProcessingTime << " seconds" << endl;
+    printf("Average waiting time of the system = %.2lf\n", averageWaitingTime);
+}
+
 int main()
 {
     
@@ -99,15 +114,9 @@ int main()
     // calculate the average waiting time
     double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size()); 
 
-    cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << endl;
-    for(auto job : finishedJobs){
-        job.printJobStatistics();
-    }
+    printFinalInformation(finishedJobs, averageWaitingTime, counter);
 
-    // print the average waiting time of the system, total time to process the jobs
-    cout << "Total time took to complete all the jobs in the ready queue = " << counter << " seconds" << endl;
-    cout << "Total waiting time in the system = " << totalWaitingTime << endl;
-    printf("Average waiting time of the system = %.2lf\n", averageWaitingTime);
+    
 
 }
 
