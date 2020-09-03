@@ -9,7 +9,8 @@ class Job:
         self.completion_time = 0
 
     def print_stats(self):
-        print(self.name, self.arrival_time, self.burst_time, self.waiting_time, self.completion_time)
+        TAB = "\t\t"
+        print(f'{self.name.center(10)}\t|\t{self.arrival_time}\t|\t{self.burst_time}\t|\t{self.waiting_time}\t|\t{self.completion_time}')
 
 
 # function to insert jobs in queue
@@ -66,10 +67,13 @@ def main():
     
     average_waiting_time = (total_waiting_time / len(names_of_jobs))
 
-    print(f'Name A.T B.T W.T C.T')
+
+    print('----------------------------------------------------------------------------')    
+    print(f'  Name\t\t\tA.T\t\tB.T\t\tW.T\t\tC.T')
+    print('----------------------------------------------------------------------------')
     for job in finished_jobs:
         job.print_stats()
-
+    print('----------------------------------------------------------------------------')
 
     print(f'average waiting time in the system  = {average_waiting_time}')
     print(f'total time took to complete all the jobs = {booked_slot}')
