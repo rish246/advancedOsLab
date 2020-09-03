@@ -7,9 +7,9 @@
 using namespace std;
 
 
-vector<string> nameOfJobs = {"P1", "P2", "P3", "P4"};
-vector<int> arrivalTimes = {1, 2, 1, 4};
-vector<int> burstTimes = {3, 4, 2, 4};
+vector<string> nameOfJobs = {"P1", "P2", "P3", "P4", "P5"};
+vector<int> arrivalTimes = {2, 5, 1, 0, 4};
+vector<int> burstTimes = {6, 2, 8, 3, 4};
 
 const int inf = 100;
 
@@ -79,6 +79,7 @@ int main()
 
     
     int counter = 0;
+    int totalWaitingTime = 0.0;
 
     while(counter < inf){
         // address of all job objects
@@ -105,13 +106,15 @@ int main()
 
 
         // counter += jobToServe->burstTime;
+        jobToServe->waitingTime = counter - jobToServe->arrivalTime;
+
+        totalWaitingTime += jobToServe->waitingTime;
 
         jobToServe->completionTime = counter + jobToServe->burstTime;
 
         counter = jobToServe->completionTime;
         
     
-        jobToServe->waitingTime = counter - jobToServe->arrivalTime;
 
         jobToServe->responseTime = jobToServe->waitingTime;
 
@@ -124,7 +127,9 @@ int main()
 
     }
     
-    for(auto job : finishedJobs) job.printStats();
+    double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size());
 
+    for(auto job : finishedJobs) job.printStats();
+    printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
 
 }
