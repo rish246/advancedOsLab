@@ -34,8 +34,7 @@ def insert_jobs_in_ready_queue(ready_queue, job_queue, timer):
         if job.arrival_time <= timer and job.served == False:
             ready_queue.append(job)
 
-def by_burst_time(first_job, second_job):
-    return first_job.burst_time - second_job.burst_time
+
 
 
 def serve_job(job, timer):
