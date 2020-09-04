@@ -11,7 +11,9 @@ vector<string> nameOfJobs = {"P1", "P2", "P3", "P4", "P5"};
 vector<int> arrivalTimes = {2, 5, 1, 0, 4};
 vector<int> burstTimes = {6, 2, 8, 3, 4};
 
+// max time for which our cpu will process the jobs
 const int inf = 100;
+
 
 class Job {
 public:
@@ -33,7 +35,7 @@ public:
     }
 };
 
-
+// helper used to insert jobs in the job queue
 void insertJobsInJobQueue(vector<Job> &jobQueue)
 {
     int numberOfJobs = nameOfJobs.size();
@@ -51,7 +53,7 @@ void insertJobsInJobQueue(vector<Job> &jobQueue)
 }
 
 
-
+// helper used to insert jobs in the ready queue
 void insertJobsInReadyQueue(vector<Job*> &readyQueue, vector<Job> &jobQueue, int counter){
 
     // check for all the jobs which are arrived before counter
@@ -65,9 +67,41 @@ void insertJobsInReadyQueue(vector<Job*> &readyQueue, vector<Job> &jobQueue, int
 
 }
 
+// comparator used for sorting the jobs in ready queue
 bool onBurstTime(Job* j1, Job* j2){
     return j1->burstTime <= j2->burstTime;
 }
+
+// function that will serve the job
+// calculate the average waiting time
+// completion time
+// response time for that job
+void serveJob(Job* jobToServe, int counter){
+    jobToServe->served = true;
+
+
+        // counter += jobToServe->burstTime;
+    jobToServe->waitingTime = counter - jobToServe->arrivalTime;
+
+
+    jobToServe->completionTime = counter + jobToServe->burstTime;
+
+    
+
+
+    jobToServe->responseTime = jobToServe->waitingTime;
+}
+
+// function that will print the final information
+void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime){
+    double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size());
+
+    cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << setw(5) << "R.T" << endl;
+
+    for(auto job : finishedJobs) job.printStats();
+    printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
+}
+
 
 int main()
 {
@@ -79,7 +113,7 @@ int main()
 
     
     int counter = 0;
-    int totalWaitingTime = 0.0;
+    int totalWaitingTime = 0;
 
     while(counter < inf){
         // address of all job objects
@@ -93,31 +127,28 @@ int main()
             counter++;
             continue;
         } 
+
+        // sort based on birst time
         sort(readyQueue.begin(), readyQueue.end(), onBurstTime);
 
         // // get the first job
-        // Job *jobToServe = &readyQueue[0];
+        // the first job is the job with min burst time
+        // select the job for processing
         Job* jobToServe = readyQueue[0]; // address of the job to serve
 
-        // cout << jobToServe->served << endl;
+        // provide service to the selected job
+        serveJob(jobToServe, counter);
 
-        // // cout << jobToServe.name << endl;
-        jobToServe->served = true;
+        // increase the counter to the completion time value
+        // cpu will be busy till the current job is served
+        // so till then, add the arriving jobs in readyQueue
+        counter = jobToServe->completionTime;
 
-
-        // counter += jobToServe->burstTime;
-        jobToServe->waitingTime = counter - jobToServe->arrivalTime;
 
         totalWaitingTime += jobToServe->waitingTime;
 
-        jobToServe->completionTime = counter + jobToServe->burstTime;
 
-        counter = jobToServe->completionTime;
-        
-    
-
-        jobToServe->responseTime = jobToServe->waitingTime;
-
+        // once processed, add the job to finished jobs array
         finishedJobs.push_back(*jobToServe);
 
         
@@ -127,9 +158,12 @@ int main()
 
     }
     
-    double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size());
 
-    for(auto job : finishedJobs) job.printStats();
-    printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
+
+    // print all the necessary information like:
+    //      1. Table of information
+    //      2. Average waiting time
+    printFinalInformation(finishedJobs, totalWaitingTime);
+    
 
 }
