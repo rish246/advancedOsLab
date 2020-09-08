@@ -8,9 +8,9 @@
 using namespace std;
 
 
-vector<string> nameOfJobs = {"P1", "P2", "P3", "P4"};
-vector<int> arrivalTimes = {0, 1, 2, 3};
-vector<int> burstTimes = {21, 3, 6, 2};
+vector<string> nameOfJobs = {"P1", "P2", "P3", "P4", "P5"};
+vector<int> arrivalTimes = {2, 5, 1, 0, 4};
+vector<int> burstTimes = {6, 2, 8, 3, 4};
 
 // max time for which our cpu will process the jobs
 const int inf = 100;
@@ -20,7 +20,7 @@ class Job {
 public:
     string name;
     bool served = false;
-    int arrivalTime, burstTime, waitingTime, responseTime, completionTime, burstTimeRecord;
+    int arrivalTime, burstTime, waitingTime, responseTime, completionTime, burstTimeRecord, turnAroundTime;
 
     Job(string name, int arrivalTime, int burstTime){
         this->name = name;
@@ -29,10 +29,19 @@ public:
         this->waitingTime  = INT_MAX;
         this->completionTime = INT_MAX;
         this->responseTime = INT_MAX;
+        this->turnAroundTime = INT_MAX;
     }
 
     void printStats(){
-        cout  << setw(20) << this->name << setw(5) << this->arrivalTime << setw(5) << this->burstTimeRecord << setw(5) << this->waitingTime << setw(5) << this->completionTime << setw(5) << this->responseTime << endl;
+        cout  
+        << setw(20) << this->name 
+        << setw(5) << this->arrivalTime 
+        << setw(5) << this->burstTimeRecord 
+        << setw(5) << this->waitingTime 
+        << setw(5) << this->completionTime 
+        << setw(5) << this->responseTime 
+        << setw(5) << this->turnAroundTime 
+        << endl;
     }
 };
 
@@ -80,6 +89,8 @@ bool onBurstTime(Job* j1, Job* j2){
 void serveJob(Job* jobToServe, int timer){
     jobToServe->served = true;
     jobToServe->completionTime = timer + 1;
+    jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
+    jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->burstTimeRecord;
     jobToServe->responseTime = jobToServe->waitingTime; 
 }
 
@@ -87,7 +98,15 @@ void serveJob(Job* jobToServe, int timer){
 void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime){
     double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size());
 
-    cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << setw(5) << "R.T" << endl;
+    cout 
+    << setw(20) << "Name" 
+    << setw(5) << "A.T" 
+    << setw(5) << "B.T" 
+    << setw(5) << "W.T" 
+    << setw(5) << "C.T" 
+    << setw(5) << "R.T" 
+    << setw(5) << "T.A.T" 
+    << setw(5) << endl;
 
     for(auto job : finishedJobs) job.printStats();
     printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
@@ -139,14 +158,14 @@ int main()
 
         // cout << jobToServe->name << ' ' << timer << ' ' << jobToServe->burstTime << ' ' << endl;
         // correct serveJobs function
-        jobToServe->waitingTime = min(jobToServe->waitingTime, timer);
 
-        totalWaitingTime += jobToServe->waitingTime;
 
 
         // once processed, add the job to finished jobs array
         if(jobToServe->burstTime == 0) {
             serveJob(jobToServe, timer);
+            totalWaitingTime += jobToServe->waitingTime;
+
             
             finishedJobs.push_back(*jobToServe);
         }
