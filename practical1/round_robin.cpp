@@ -6,12 +6,12 @@
 
 using namespace std;
 
-vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "P5"};
-vector<int> arrivalTimes = {0, 1, 2, 3, 4};
-vector<int> burstTimes = {5, 3, 1, 2, 3};
+vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "P5", "P6"};
+vector<int> arrivalTimes = {5, 4, 3, 1, 2, 6};
+vector<int> burstTimes = {5, 6, 7, 9, 2, 3};
 
 const int INFINITY = 100;
-const int TIME_INTERVAL = 2;
+const int TIME_INTERVAL = 3;
 
 class Job {
 public:
@@ -58,19 +58,6 @@ void insertJobsInJobQueue(vector<Job> &jobQueue)
     
 }
 
-// void insertJobsInReadyQueue(queue<Job*> &readyQueue, vector<Job> jobQueue, int timer)
-// {
-//     // search in jobQueue, check for arrived processes
-//     for(auto &job : jobQueue){
-//         if(job.arrivalTime <= timer && job.isisisServed == false){
-//             Job* jobptr = &job;
-//             readyQueue.push(jobptr);
-//         }
-//     }
-
-//     // insert in readyQueue
-// }
-
 void insertJobsInReadyQueue(queue<Job*> &readyQueue, vector<Job> &jobQueue, int timer){
 
     // check for all the jobs which are arrived before timer
@@ -87,9 +74,42 @@ void insertJobsInReadyQueue(queue<Job*> &readyQueue, vector<Job> &jobQueue, int 
 
 }
 
+void serveJob(Job* jobToServe, int timer){
+    jobToServe->isServed = true;
+        // mark isisServed as true
+    // these are calculated accurately
+    jobToServe->completionTime = timer;
+// calculate waiting time, execution time and tat
+    jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
+
+    jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
+}
+
+void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime, int totalTurnAroundTime){
+
+    int totalNumberOfJobs = namesOfProcesses.size();
+    double averageWaitingTime = (1.0 * totalWaitingTime) / (totalNumberOfJobs);
+    double averageTurnAroundTime = (1.0 * totalTurnAroundTime) / (totalNumberOfJobs);
+    cout 
+    << setw(20) << "Name" 
+    << setw(5) << "A.T" 
+    << setw(5) << "B.T" 
+    << setw(5) << "W.T" 
+    << setw(5) << "C.T" 
+    << setw(5) << "T.A.T" 
+    << endl;
+
+    for(auto job : finishedJobs) job.printStats();
+    printf("Average turn around time in the system = %.2lf\n", averageTurnAroundTime);
+    printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
+}
+
+
 bool onArrivalTime(Job j1, Job j2){
     return j1.arrivalTime < j2.arrivalTime;
 }
+
+
 
 int main()
 {
@@ -142,45 +162,26 @@ int main()
         // check if job has done its processing
 
         // job will not be pushed in ready queue again
-        if(jobToServe->burstTime == 0){
-            // if yes, push it into finished jobs
-            jobToServe->isServed = true;
-        // mark isisServed as true
-            // these are calculated accurately
-            jobToServe->completionTime = timer;
-        // calculate waiting time, execution time and tat
-            jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
-
-            jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
-
-            // cout << jobToServe->name << ' ' << jobToServe->burstTime << endl;
-            totalWaitingTime += jobToServe->waitingTime;
-
-            totalTurnAroundTime += jobToServe->turnAroundTime;
-
-            finishedJobs.push_back(*jobToServe);
-
-
-        }
-        
-        else {
-            // we still have some processing to do
-            // store it in a global variable
+        if(jobToServe->burstTime != 0){
             prevJobProcessed = jobToServe;
-
-            // access the variable in next iteration of the loop
+            continue;
         }
-        
-        // we have to append the process to the end of the readyQueue
+            
+
+            
+        // burstTime == 0 
+        serveJob(jobToServe, timer);
+
+        // cout << jobToServe->name << ' ' << jobToServe->burstTime << endl;
+        totalWaitingTime += jobToServe->waitingTime;
+
+        totalTurnAroundTime += jobToServe->turnAroundTime;
+
+        finishedJobs.push_back(*jobToServe);
 
     }
 
-    double averageWaitingTime = (1.0 * totalWaitingTime) / (namesOfProcesses.size());
-    double averageTurnAroundTime = (1.0 * totalTurnAroundTime) / (namesOfProcesses.size());
-
-    cout << setprecision(5) << averageTurnAroundTime << endl;
-    cout << setprecision(5) << averageWaitingTime << endl;
-    for(auto job : finishedJobs) job.printStats();
+    printFinalInformation(finishedJobs, totalWaitingTime, totalTurnAroundTime);
 
 
 }
