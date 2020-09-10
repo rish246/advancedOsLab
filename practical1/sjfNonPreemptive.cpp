@@ -31,7 +31,14 @@ public:
     }
 
     void printStats(){
-        cout  << setw(20) << this->name << setw(5) << this->arrivalTime << setw(5) << this->burstTime << setw(5) << this->waitingTime << setw(5) << this->completionTime << setw(5) << this->responseTime << endl;
+        cout  
+        << setw(20) << this->name 
+        << setw(5) << this->arrivalTime
+        << setw(5) << this->burstTime 
+        << setw(5) << this->waitingTime 
+        << setw(5) << this->completionTime 
+        << setw(5) << this->responseTime 
+        << endl;
     }
 };
 
@@ -54,12 +61,13 @@ void insertJobsInJobQueue(vector<Job> &jobQueue)
 
 
 // helper used to insert jobs in the ready queue
-void insertJobsInReadyQueue(vector<Job*> &readyQueue, vector<Job> &jobQueue, int counter){
+void insertJobsInReadyQueue(vector<Job*> &readyQueue, vector<Job> &jobQueue, int timer)
+{
 
-    // check for all the jobs which are arrived before counter
+    // check for all the jobs which are arrived before timer
     // passed in original jobQueue
     for(auto &job : jobQueue){
-        if(job.arrivalTime <= counter && job.served == false){
+        if(job.arrivalTime <= timer && job.served == false){
             Job* jobptr = &job;
             readyQueue.push_back(jobptr);
         }
@@ -68,7 +76,8 @@ void insertJobsInReadyQueue(vector<Job*> &readyQueue, vector<Job> &jobQueue, int
 }
 
 // comparator used for sorting the jobs in ready queue
-bool onBurstTime(Job* j1, Job* j2){
+bool onBurstTime(Job* j1, Job* j2)
+{
     return j1->burstTime <= j2->burstTime;
 }
 
@@ -76,27 +85,30 @@ bool onBurstTime(Job* j1, Job* j2){
 // calculate the average waiting time
 // completion time
 // response time for that job
-void serveJob(Job* jobToServe, int counter){
+void serveJob(Job* jobToServe, int timer)
+{
     jobToServe->served = true;
 
+    jobToServe->waitingTime = timer - jobToServe->arrivalTime;
 
-        // counter += jobToServe->burstTime;
-    jobToServe->waitingTime = counter - jobToServe->arrivalTime;
-
-
-    jobToServe->completionTime = counter + jobToServe->burstTime;
-
-    
-
+    jobToServe->completionTime = timer + jobToServe->burstTime;
 
     jobToServe->responseTime = jobToServe->waitingTime;
 }
 
 // function that will print the final information
-void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime){
+void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime)
+{
     double averageWaitingTime = (1.0 * totalWaitingTime) / (nameOfJobs.size());
 
-    cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << setw(5) << "R.T" << endl;
+    cout 
+    << setw(20) << "Name" 
+    << setw(5) << "A.T" 
+    << setw(5) << "B.T" 
+    << setw(5) << "W.T" 
+    << setw(5) << "C.T" 
+    << setw(5) << "R.T" 
+    << endl;
 
     for(auto job : finishedJobs) job.printStats();
     printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
@@ -112,19 +124,19 @@ int main()
     // sort(jobQueue.begin(), jobQueue.end(), onPriority);
 
     
-    int counter = 0;
+    int timer = 0;
     int totalWaitingTime = 0;
 
-    while(counter < inf){
+    while(timer < inf){
         // address of all job objects
         vector<Job*> readyQueue;
 
         // this code is wrong
-        insertJobsInReadyQueue(readyQueue, jobQueue, counter);
+        insertJobsInReadyQueue(readyQueue, jobQueue, timer);
 
         // if no job has arrived, then don't do anything
         if(readyQueue.size() == 0){
-            counter++;
+            timer++;
             continue;
         } 
 
@@ -137,12 +149,12 @@ int main()
         Job* jobToServe = readyQueue[0]; // address of the job to serve
 
         // provide service to the selected job
-        serveJob(jobToServe, counter);
+        serveJob(jobToServe, timer);
 
-        // increase the counter to the completion time value
+        // increase the timer to the completion time value
         // cpu will be busy till the current job is served
         // so till then, add the arriving jobs in readyQueue
-        counter = jobToServe->completionTime;
+        timer = jobToServe->completionTime;
 
 
         totalWaitingTime += jobToServe->waitingTime;

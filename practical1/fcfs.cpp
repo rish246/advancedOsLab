@@ -26,7 +26,13 @@ class Job {
 
         // print the value of various properties of our job object
         void printJobStatistics(){
-            cout  << setw(20) << this->name << setw(5) << this->arrivalTime << setw(5) << this->burstTime << setw(5) << this->waitingTime << setw(5) << this->completionTime << endl;
+            cout  
+            << setw(20) << this->name 
+            << setw(5) << this->arrivalTime 
+            << setw(5) << this->burstTime 
+            << setw(5) << this->waitingTime 
+            << setw(5) << this->completionTime 
+            << endl;
         }
 };
 
@@ -59,7 +65,13 @@ void insertJobsInQueue(queue<Job> &readyQueue){
 // average waiting time of the system
 // total processing time of the system
 void printFinalInformation(vector<Job> finishedJobs, double averageWaitingTime, int totalProcessingTime){
-    cout << setw(20) << "Name" << setw(5) << "A.T" << setw(5) << "B.T" << setw(5) << "W.T" << setw(5) << "C.T" << endl;
+    cout 
+    << setw(20) << "Name" 
+    << setw(5) << "A.T" 
+    << setw(5) << "B.T" 
+    << setw(5) << "W.T" 
+    << setw(5) << "C.T" 
+    << endl;
     for(auto job : finishedJobs){
         job.printJobStatistics();
     }

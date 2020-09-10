@@ -69,8 +69,10 @@ void insertJobsInReadyQueue(vector<Job*> &readyQueue, vector<Job> &jobQueue, int
     // check for all the jobs which are arrived before timer
     // passed in original jobQueue
     for(auto &job : jobQueue){
+        // check if job has arrived and has not been served yed
         if(job.arrivalTime <= timer && job.served == false){
             Job* jobptr = &job;
+            // push address of job in the ready queue
             readyQueue.push_back(jobptr);
         }
     }
