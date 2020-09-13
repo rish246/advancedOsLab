@@ -6,12 +6,13 @@
 
 using namespace std;
 
-vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "P5", "P6"};
-vector<int> arrivalTimes = {5, 4, 3, 1, 2, 6};
-vector<int> burstTimes = {5, 6, 7, 9, 2, 3};
+vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "p5"};
+vector<int> arrivalTimes = {0, 1, 2, 3, 4};
+vector<int> burstTimes = {2, 6, 4, 9, 12};
+
 
 const int INFINITY = 100;
-const int TIME_INTERVAL = 3;
+const int TIME_INTERVAL = 2;
 
 class Job {
 public:
@@ -188,3 +189,5 @@ int main()
 
 
 // why am i getting waiting time == (turnAroundTime)
+
+// higher average waiting time in round_robin.cpp

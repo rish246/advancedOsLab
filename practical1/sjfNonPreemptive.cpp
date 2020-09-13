@@ -7,10 +7,9 @@
 using namespace std;
 
 
-vector<string> nameOfJobs = {"P1", "P2", "P3", "P4", "P5"};
-vector<int> arrivalTimes = {2, 5, 1, 0, 4};
-vector<int> burstTimes = {6, 2, 8, 3, 4};
-
+vector<string> nameOfJobs = {"P1", "P2", "P3", "P4", "p5"};
+vector<int> arrivalTimes = {0, 1, 2, 3, 4};
+vector<int> burstTimes = {2, 6, 4, 9, 12};
 // max time for which our cpu will process the jobs
 const int inf = 100;
 

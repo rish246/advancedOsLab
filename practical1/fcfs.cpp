@@ -6,7 +6,7 @@
 using namespace std;
 
 // declare all the jobs currently present in our system
-vector<string> nameOfJobs = {"MsWord", "NotePad", "Vscode", "Intellij", "Google chrome"};
+vector<string> nameOfJobs = {"P1", "P2", "P3", "P4", "p5"};
 vector<int> arrivalTimes = {0, 1, 2, 3, 4};
 vector<int> burstTimes = {2, 6, 4, 9, 12};
 
@@ -89,6 +89,7 @@ int main()
 
     // insert jobs in ready queue
     insertJobsInQueue(readyQueue);
+    // jobQueue
 
     // counter keeps track of the booked time slot
     int counter = 0;
