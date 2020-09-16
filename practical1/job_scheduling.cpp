@@ -9,6 +9,8 @@ using namespace std;
 vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "p5"};
 vector<int> arrivalTimes = {0, 1, 2, 3, 4};
 vector<int> burstTimes = {2, 6, 4, 9, 12};
+vector<int> priorities = {2, 3, 4, 5, 5};
+
 
 
 const int INFINITY = 100;
@@ -17,10 +19,10 @@ const int TIME_INTERVAL = 2;
 class Job {
 public:
     string name;
-    bool isServed = false, isAlreadyInReadyQueue = false;
-    int arrivalTime, burstTime, waitingTime, completionTime, turnAroundTime, originalBurstTime;
+    bool isServed = false, isPresentInReadyQueue = false;
+    int arrivalTime, burstTime, waitingTime, completionTime, turnAroundTime, originalBurstTime, priority;
 
-    Job(string name, int arrivalTime, int burstTime){
+    Job(string name, int arrivalTime, int burstTime, int priority){
         this->name = name;
         this->arrivalTime = arrivalTime;
         this->burstTime = burstTime;
@@ -29,6 +31,7 @@ public:
         this->turnAroundTime = 0;
         this->isServed = false;
         this->originalBurstTime = this->burstTime;
+        this->priority = priority;
     }
 
     void printStats(){
@@ -177,7 +180,13 @@ class SjfScheduler {
 };
 
 class SjfPreemptiveScheduler : public SjfScheduler{
-    
+    void serveJob(Job* jobToServe, int timer){
+        jobToServe->isServed = true;
+        jobToServe->completionTime = timer + 1;
+        jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
+        jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
+        // jobToServe->responseTime = jobToServe->waitingTime; 
+    }    
 
     public:
         void scheduleJobs(vector<Job> jobQueue){
@@ -251,13 +260,7 @@ class SjfPreemptiveScheduler : public SjfScheduler{
         // calculate the average waiting time
         // completion time
         // response time for that job
-        void serveJob(Job* jobToServe, int timer){
-            jobToServe->isServed = true;
-            jobToServe->completionTime = timer + 1;
-            jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
-            jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
-            // jobToServe->responseTime = jobToServe->waitingTime; 
-        }
+        
     
 
 
@@ -395,6 +398,86 @@ class FcfsScheduler{
 };
 
 
+/////////////////////////////////////////////
+struct ComparyPriorities
+{
+    /* data */
+    bool operator () (Job* j1, Job* j2){
+        return j1->priority < j2->priority;
+    }
+};
+
+class PriorityScheduler {
+    vector<Job> finishedJobs = {};
+
+    void insertJobsInReadyQueue(priority_queue<Job*, vector<Job*>, ComparyPriorities> &readyQueue, vector<Job> &jobQueue, int timer){
+
+    // check for all the jobs which are arrived before timer
+    // passed in original jobQueue
+        for(auto &job : jobQueue){
+            // check if job has arrived and has not been isisServed yed
+            if(job.arrivalTime <= timer && job.isServed == false && job.isPresentInReadyQueue == false){
+                Job* jobptr = &job;
+                // push address of job in the ready queue
+                jobptr->isPresentInReadyQueue = true;
+                readyQueue.push(jobptr);
+            }
+        }
+
+    }
+
+    void serveJob(Job* jobToServe, int timer){
+        jobToServe->isServed = true;
+
+        jobToServe->completionTime = timer;
+
+        jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
+
+        jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
+    }
+    public:
+        void scheduleJobs(vector<Job> jobQueue){
+            int timer = 0;
+            priority_queue<Job*, vector<Job*>, ComparyPriorities> readyQueue; // when something is entered, it gets to its appr location
+
+            int totalWaitingTime = 0, totalTurnAroundTime = 0;
+
+            while(timer < INFINITY){
+
+
+                // insert jobs in ready queue
+                insertJobsInReadyQueue(readyQueue, jobQueue, timer);
+
+
+                // get the best job
+                Job* jobToServe = readyQueue.top(); 
+
+
+                jobToServe->burstTime--;
+
+                timer++;
+
+
+                if(jobToServe->burstTime == 0){
+                    // done processing .... no need for more cpu allocation 
+                    // out of our readyQueue
+                    readyQueue.pop();
+
+                    serveJob(jobToServe, timer);
+
+                    totalWaitingTime += jobToServe->waitingTime;
+
+                    totalTurnAroundTime += jobToServe->turnAroundTime;
+
+                    finishedJobs.push_back(*jobToServe);
+                }
+
+                
+            }
+
+            printFinalInformation(finishedJobs, totalWaitingTime, totalTurnAroundTime);
+        }
+};
 
 
 int main()
@@ -419,10 +502,14 @@ int main()
     SjfNonPreemptiveScheduler sjfNonPreemptiveScheduler;
     sjfNonPreemptiveScheduler.scheduleJobs(jobQueue);
 
-    cout << "fcfc scheduler .........................................................." << endl;
+    cout << "fcfs scheduler .........................................................." << endl;
     FcfsScheduler fcfsScheduler;
     fcfsScheduler.scheduleJobs(jobQueue);
     // cout << "........................................................................." << endl;
+
+    cout << "Priority Scheduler ......................................................" << endl;
+    PriorityScheduler priorityScheduler;
+    priorityScheduler.scheduleJobs(jobQueue);
 
 
 }
@@ -436,8 +523,10 @@ void insertJobsInJobQueue(vector<Job> &jobQueue)
         string nameOfCurJob = namesOfProcesses[i];
         int arrivalTimeOfCurJob = arrivalTimes[i];
         int burstTimeOfCurJob = burstTimes[i];
+        int priorityOfCurJob = priorities[i];
 
-        Job newJob(nameOfCurJob, arrivalTimeOfCurJob, burstTimeOfCurJob);
+        Job newJob(nameOfCurJob, arrivalTimeOfCurJob, burstTimeOfCurJob, priorityOfCurJob);
+
         jobQueue.push_back(newJob);
     }
     
@@ -450,10 +539,10 @@ void insertJobsInReadyQueue(queue<Job*> &readyQueue, vector<Job> &jobQueue, int 
     // passed in original jobQueue
     for(auto &job : jobQueue){
         // check if job has arrived and has not been isisServed yed
-        if(job.arrivalTime <= timer && job.isServed == false && job.isAlreadyInReadyQueue == false){
+        if(job.arrivalTime <= timer && job.isServed == false && job.isPresentInReadyQueue == false){
             Job* jobptr = &job;
             // push address of job in the ready queue
-            jobptr->isAlreadyInReadyQueue = true;
+            jobptr->isPresentInReadyQueue = true;
             readyQueue.push(jobptr);
         }
     }
