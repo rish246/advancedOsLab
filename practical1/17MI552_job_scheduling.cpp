@@ -6,7 +6,7 @@
 
 using namespace std;
 
-vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "p5"};
+vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "P5"};
 vector<int> arrivalTimes = {};
 vector<int> burstTimes = {};
 vector<int> priorities = {2, 3, 4, 5, 5};
@@ -14,7 +14,7 @@ vector<int> priorities = {2, 3, 4, 5, 5};
 
 
 const int INFINITY = 100;
-const int TIME_INTERVAL = 2;
+const int TIME_QUANTUM = 2;
 
 class Job {
 public:
@@ -57,6 +57,22 @@ void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime, int 
 
 
 class RoundRobinScheduler {
+    static bool onArrivalTime(Job j1, Job j2){
+        return j1.arrivalTime < j2.arrivalTime;
+    }
+
+
+
+    void serveJob(Job* jobToServe, int timer){
+        jobToServe->isServed = true;
+            // mark isisServed as true
+        // these are calculated accurately
+        jobToServe->completionTime = timer;
+    // calculate waiting time, execution time and tat
+        jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
+
+        jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
+    }
 public:
 
 
@@ -100,7 +116,7 @@ public:
             Job* jobToServe = readyQueue.front(); readyQueue.pop();
             // process the job for interval
             
-            int processingInterval = min(TIME_INTERVAL, jobToServe->burstTime);
+            int processingInterval = min(TIME_QUANTUM, jobToServe->burstTime);
 
             jobToServe->burstTime -= processingInterval;
 
@@ -133,22 +149,7 @@ public:
     }
 
 
-    static bool onArrivalTime(Job j1, Job j2){
-        return j1.arrivalTime < j2.arrivalTime;
-    }
-
-
-
-    void serveJob(Job* jobToServe, int timer){
-        jobToServe->isServed = true;
-            // mark isisServed as true
-        // these are calculated accurately
-        jobToServe->completionTime = timer;
-    // calculate waiting time, execution time and tat
-        jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
-
-        jobToServe->waitingTime = jobToServe->turnAroundTime - jobToServe->originalBurstTime;
-    }
+    
 
 
 
@@ -273,6 +274,17 @@ class SjfPreemptiveScheduler : public SjfScheduler{
 
 
 class SjfNonPreemptiveScheduler : public SjfScheduler{
+    void serveJob(Job* jobToServe, int timer)
+    {
+        jobToServe->isServed = true;
+
+        jobToServe->waitingTime = timer - jobToServe->arrivalTime;
+
+        jobToServe->completionTime = timer + jobToServe->burstTime;
+
+        jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
+    }
+
 
     public:
         void scheduleJobs(vector<Job> jobQueue){
@@ -333,17 +345,7 @@ class SjfNonPreemptiveScheduler : public SjfScheduler{
         }
 
 
-        void serveJob(Job* jobToServe, int timer)
-        {
-            jobToServe->isServed = true;
-
-            jobToServe->waitingTime = timer - jobToServe->arrivalTime;
-
-            jobToServe->completionTime = timer + jobToServe->burstTime;
-
-            jobToServe->turnAroundTime = jobToServe->completionTime - jobToServe->arrivalTime;
-        }
-
+        
 
 };
 
@@ -351,6 +353,18 @@ class SjfNonPreemptiveScheduler : public SjfScheduler{
 
 
 class FcfsScheduler{
+    void serveJob(Job &jobToServe, int timer){
+            
+        jobToServe.waitingTime = (jobToServe.arrivalTime > timer) ? 0 : (timer - jobToServe.arrivalTime);
+
+        jobToServe.completionTime = jobToServe.arrivalTime + jobToServe.waitingTime + jobToServe.burstTime;
+
+        jobToServe.turnAroundTime = jobToServe.completionTime - jobToServe.arrivalTime;
+
+
+        
+
+    }
     public:
         void scheduleJobs(vector<Job> jobQueue){
             int timer = 0;
@@ -386,28 +400,18 @@ class FcfsScheduler{
         }
 
 
-        void serveJob(Job &jobToServe, int timer){
-            
-            jobToServe.waitingTime = (jobToServe.arrivalTime > timer) ? 0 : (timer - jobToServe.arrivalTime);
-
-            jobToServe.completionTime = jobToServe.arrivalTime + jobToServe.waitingTime + jobToServe.burstTime;
-
-            jobToServe.turnAroundTime = jobToServe.completionTime - jobToServe.arrivalTime;
-
-
-            
-
-        }
+        
 };
 
 
 /////////////////////////////////////////////
-struct ComparyPriorities
+class ComparyPriorities
 {
     /* data */
-    bool operator () (Job* j1, Job* j2){
-        return j1->priority < j2->priority;
-    }
+    public:
+        bool operator () (Job* j1, Job* j2){
+            return j1->priority < j2->priority;
+        }
 };
 
 class PriorityScheduler {
@@ -499,12 +503,12 @@ int main()
     cout << "Round Robin Scheduler ..................................................." << endl;
     RoundRobinScheduler roundRobinScheduler;
     roundRobinScheduler.scheduleJobs(jobQueue);
-    // cout << "........................................................................." << endl;
+    cout << "........................................................................." << endl;
 
     cout << "Sjf Preemptive Scheduler ................................................" << endl;
     SjfPreemptiveScheduler sjfPreemptiveScheduler;
     sjfPreemptiveScheduler.scheduleJobs(jobQueue);
-    // cout << "........................................................................." << endl;
+    cout << "........................................................................." << endl;
 
     cout << "Sjf NonPreemptive Scheduler ............................................." << endl;
     SjfNonPreemptiveScheduler sjfNonPreemptiveScheduler;
@@ -513,7 +517,7 @@ int main()
     cout << "fcfs scheduler .........................................................." << endl;
     FcfsScheduler fcfsScheduler;
     fcfsScheduler.scheduleJobs(jobQueue);
-    // cout << "........................................................................." << endl;
+    cout << "........................................................................." << endl;
 
     cout << "Priority Scheduler ......................................................" << endl;
     PriorityScheduler priorityScheduler;
