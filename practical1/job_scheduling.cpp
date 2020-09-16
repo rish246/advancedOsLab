@@ -405,21 +405,24 @@ int main()
 
     // start the processing
 
-    cout << "Round Robin Scheduler ..............." << endl;
+    cout << "Round Robin Scheduler ..................................................." << endl;
     RoundRobinScheduler roundRobinScheduler;
     roundRobinScheduler.scheduleJobs(jobQueue);
+    // cout << "........................................................................." << endl;
 
-    cout << "Sjf Preemptive Scheduler ..............." << endl;
+    cout << "Sjf Preemptive Scheduler ................................................" << endl;
     SjfPreemptiveScheduler sjfPreemptiveScheduler;
     sjfPreemptiveScheduler.scheduleJobs(jobQueue);
+    // cout << "........................................................................." << endl;
 
-    cout << "Sjf NonPreemptive Scheduler ..............." << endl;
+    cout << "Sjf NonPreemptive Scheduler ............................................." << endl;
     SjfNonPreemptiveScheduler sjfNonPreemptiveScheduler;
     sjfNonPreemptiveScheduler.scheduleJobs(jobQueue);
 
-    cout << "fcfc scheduler ..............." << endl;
+    cout << "fcfc scheduler .........................................................." << endl;
     FcfsScheduler fcfsScheduler;
     fcfsScheduler.scheduleJobs(jobQueue);
+    // cout << "........................................................................." << endl;
 
 
 }
@@ -473,9 +476,13 @@ void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime, int 
     << setw(5) << "T.A.T" 
     << endl;
 
+
+
     for(auto job : finishedJobs) job.printStats();
     printf("Average turn around time in the system = %.2lf\n", averageTurnAroundTime);
     printf("Average waiting time in the system = %.2lf\n", averageWaitingTime);
+    cout << "........................................................................." << endl;
+
 }
 
 
