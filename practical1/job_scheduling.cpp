@@ -7,8 +7,8 @@
 using namespace std;
 
 vector<string> namesOfProcesses = {"P1", "P2", "P3", "P4", "p5"};
-vector<int> arrivalTimes = {0, 1, 2, 3, 4};
-vector<int> burstTimes = {2, 6, 4, 9, 12};
+vector<int> arrivalTimes = {};
+vector<int> burstTimes = {};
 vector<int> priorities = {2, 3, 4, 5, 5};
 
 
@@ -45,6 +45,9 @@ public:
         << endl;
     }
 };
+void generateRandomArrivalTimes();
+
+void generateRandomBurstTimes();
 
 void insertJobsInJobQueue(vector<Job> &jobQueue);
 
@@ -448,6 +451,11 @@ class PriorityScheduler {
                 // insert jobs in ready queue
                 insertJobsInReadyQueue(readyQueue, jobQueue, timer);
 
+                if(readyQueue.empty()) {
+                    timer++;
+                    continue;
+                }
+
 
                 // get the best job
                 Job* jobToServe = readyQueue.top(); 
@@ -519,6 +527,10 @@ void insertJobsInJobQueue(vector<Job> &jobQueue)
 {
     int numberOfJobs = namesOfProcesses.size();
 
+    generateRandomArrivalTimes();
+
+    generateRandomBurstTimes();
+
     for(int i=0; i<numberOfJobs; i++){
         string nameOfCurJob = namesOfProcesses[i];
         int arrivalTimeOfCurJob = arrivalTimes[i];
@@ -574,6 +586,46 @@ void printFinalInformation(vector<Job> &finishedJobs, int totalWaitingTime, int 
 
 }
 
+
+////////////////// generate random arrival times /////////////////////
+void generateRandomArrivalTimes()
+{
+    // change the arrival times 
+    int numberOfProcesses = namesOfProcesses.size();
+
+    arrivalTimes.resize(numberOfProcesses);
+
+
+    for(int i=0; i < numberOfProcesses; i++){
+        int randomArrivalTime = 0;
+
+        // generate random arrival time
+        randomArrivalTime = (rand() % 19);
+
+        arrivalTimes[i] = randomArrivalTime;
+    }
+
+}
+
+///////////////// generate random burst times ///////////////////////////
+void generateRandomBurstTimes()
+{
+    // change the arrival times 
+    int numberOfProcesses = namesOfProcesses.size();
+
+    burstTimes.resize(numberOfProcesses);
+
+
+    for(int i=0; i < numberOfProcesses; i++){
+        int randomBurstTime = 0;
+
+        // generate random burst time
+        randomBurstTime = (rand() % 10);
+
+        burstTimes[i] = randomBurstTime;
+    }
+
+}
 
 // why am i getting waiting time == (turnAroundTime)
 
