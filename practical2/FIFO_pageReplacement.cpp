@@ -7,11 +7,11 @@
 
 using namespace std;
 
-vector<int> referenceString = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 1, 2, 0};
+vector<int> referenceString = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 3};
 
 unordered_map<int, bool> isPresentInCache;
 
-int numFrames = 3;
+int numFrames = 4;
 
 vector<int> frame(numFrames, -1);
 
@@ -22,6 +22,14 @@ void printFrameStats(){
     cout << endl;
 }
 
+void printFinalStats(int numMisses){
+    int numHits = referenceString.size() - numMisses;
+
+    cout << "Total misses in cache = " <<  numMisses << endl;
+    cout << "Total hits  in  cache = " << numHits << endl; 
+    cout << "Hit ratio of the system  = " << (1.0 * numHits / referenceString.size()) << endl;
+}
+
 int main()
 {
     int numMisses = 0;
@@ -29,7 +37,7 @@ int main()
     int insertIndex = 0;
 
     for(int page : referenceString){
-
+        // cout << page << endl;
         // print current situation of frames
         printFrameStats();
         if(!isPresentInCache[page]){
@@ -54,8 +62,7 @@ int main()
         }
     }
 
-    cout << "Total misses in cache = " <<  numMisses << endl;
-    cout << "Total hits  in  cache = " << (referenceString.size() - numMisses) << endl; 
-
+    
+    printFinalStats(numMisses);
 
 }
