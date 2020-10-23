@@ -110,7 +110,7 @@ class LRU {
             for(int i = 0; i < referenceString.size(); i++){
             
                 int currPage = referenceString[i];
-                // printFrameStats(frame);
+                printFrameStats(frame);
 
                 // cout << currPage <<  ' ' << lastOccurenceOf[currPage] << endl;
 
