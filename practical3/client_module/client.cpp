@@ -138,13 +138,17 @@ void cache_file(string filename, string filecontent)
 {
     // extract dir name
     string dirname = extract_dirname(filename);
+    print_str(dirname);
 
     // check if the folder exists
+    // update dirname so that the file is stored in the cache
+    string dirname_cache = "./cache" + dirname.substr(1, dirname.size());
 
-    if (!is_path_exits(dirname))
+    print_str(dirname_cache);
+    if (!is_path_exits(dirname_cache))
     {
         // if not then create the folder
-        int status = mkdir(dirname.c_str(), 0777);
+        int status = mkdir(dirname_cache.c_str(), 0777);
         if (status != -1)
         {
             printf("Successfully created the directory\n");
@@ -157,10 +161,13 @@ void cache_file(string filename, string filecontent)
     }
 
     // create a file in the folder
-    if (is_path_exits(dirname))
+    if (is_path_exits(dirname_cache))
     {
+        string filename_cache = "./cache" + filename.substr(1, filename.size());
         // create a new file
-        ofstream main_file(filename, ios::out);
+        ofstream main_file(filename_cache, ios::out);
+
+        // open the filename in the cache
         if (!main_file.is_open())
         {
             printf("Couldn't open the file... Error occured");

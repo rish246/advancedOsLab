@@ -1,3 +1,1 @@
-./folder1/file1.txt
-./folder1/file_to_recieve.txt
 ./folder2/file2.txt
