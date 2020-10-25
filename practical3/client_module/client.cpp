@@ -19,7 +19,6 @@ const int PORT = 5400;
     @params --> string str
     @return --> void
     @desc   --> prints the string str on the console
-
 */
 void print_str(string str)
 {
@@ -33,7 +32,6 @@ void print_str(string str)
     @params --> string file_name
     @return --> true/false
     @desc   --> looks in the cache_record.txt file to check whether the file is in the cache  
-
 */
 bool is_in_cache(char *file_name)
 {
@@ -56,48 +54,12 @@ bool is_in_cache(char *file_name)
 }
 
 /*
-    @name   --> recieve_file
-    @params --> int client_socket, int file_size, int num_blocks
-    @return --> string file_content
-    @desc   --> recieves num_blocks from server and store the blocks in a string... 
-
-
-*/
-string recieve_file(int client_socket, int file_size, int num_blocks)
-{
-    string file_content;
-    int max_block_size = 1024;
-    for (int i = 0; i < num_blocks; i++)
-    {
-        // fix bug in this code
-
-        int cur_block_size = min(max_block_size, (file_size - (i * max_block_size)));
-
-        char buffer[cur_block_size];
-
-        recv(client_socket, &buffer, sizeof(buffer), 0);
-
-        // printf("%s\n", buffer);
-
-        string buffer_str(buffer);
-        file_content += buffer_str;
-
-        // printf("Block number %d recieved by the client\n", i);
-
-        // printf("%s\n", buffer);
-    }
-
-    return file_content;
-}
-
-/*
     @name   --> extract_dirname
     @params --> string path
     @return --> string dirname
     @desc   --> extracts the name of the dir from the given path
-
 */
-string extract_dirname(string path)
+string extract_dirname(const string &path)
 {
     string dirname = path;
 
@@ -117,7 +79,6 @@ string extract_dirname(string path)
     @params --> string dirname
     @return --> true/false
     @desc   --> Checks whether the path exists.. if it does, return true else false  
-
 */
 bool is_path_exits(string path)
 {
@@ -126,15 +87,12 @@ bool is_path_exits(string path)
 }
 
 /*
-
     @name   -> cache file
     @params -> string filename, string filecontent
     @return -> void
     @desc   -> create a new file and writes the filecontent in the file in cache folder 
-
-
 */
-void cache_file(string filename, string filecontent)
+void cache_file(string filename, const string &filecontent)
 {
     // extract dir name
     string dirname = extract_dirname(filename);
@@ -198,6 +156,77 @@ void cache_file(string filename, string filecontent)
     printf("Couldn't find the folder to store the file\n");
 }
 
+/*
+    @name   --> recieve_file
+    @params --> int client_socket, int file_size, int num_blocks
+    @return --> string file_content
+    @desc   --> recieves num_blocks from server and store the blocks in a string... 
+*/
+string recieve_file(int client_socket, int file_size, int num_blocks)
+{
+    string file_content;
+    int max_block_size = 1024;
+    for (int i = 0; i < num_blocks; i++)
+    {
+        // fix bug in this code
+
+        int cur_block_size = min(max_block_size, (file_size - (i * max_block_size)));
+
+        char buffer[cur_block_size];
+
+        recv(client_socket, &buffer, sizeof(buffer), 0);
+
+        // printf("%s\n", buffer);
+
+        string buffer_str(buffer);
+        file_content += buffer_str;
+
+        // printf("Block number %d recieved by the client\n", i);
+
+        // printf("%s\n", buffer);
+    }
+
+    return file_content;
+}
+
+/*
+    @name   --> recieve_file
+    @params --> int client_socket, int file_size, int num_blocks
+    @return --> string file_content
+    @desc   --> recieves num_blocks from server and store the blocks in a string... 
+*/
+void get_served(int client_socket, char *filename)
+{
+    send(client_socket, filename, sizeof(filename), 0);
+
+    // recieve length of file
+    int file_size;
+    recv(client_socket, &file_size, sizeof(int), 0);
+
+    // revieve file from server
+    // cout << file_size << endl;
+    printf("%d\n", file_size);
+
+    // create a buffer to store the file
+
+    // recieve file
+    int num_blocks;
+
+    recv(client_socket, &num_blocks, sizeof(num_blocks), 0);
+    printf("Num blocks to recieve = %d\n", num_blocks);
+
+    // send acknowledgement
+    bool is_reached = true;
+    send(client_socket, &is_reached, sizeof(is_reached), 0);
+
+    // recieve blocks
+    string file_content = recieve_file(client_socket, file_size, num_blocks);
+
+    cache_file(string(filename) + ')', file_content);
+
+    printf("Finished recieving file from the server\n");
+}
+
 // function print_str
 
 // this is why we need cache coherence
@@ -209,7 +238,7 @@ void cache_file(string filename, string filecontent)
 int main()
 {
     // ifstream fin("./cache/cache_record.txt", "r");
-    char filename[] = "./folder2/file2.txt";
+    char filename[] = "./folder1/file_to_recieve.txt";
 
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -225,34 +254,7 @@ int main()
         connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
 
         // send name of file to server
-        send(client_socket, filename, sizeof(filename), 0);
-
-        // recieve length of file
-        int file_size;
-        recv(client_socket, &file_size, sizeof(int), 0);
-
-        // revieve file from server
-        // cout << file_size << endl;
-        printf("%d\n", file_size);
-
-        // create a buffer to store the file
-
-        // recieve file
-        int num_blocks;
-
-        recv(client_socket, &num_blocks, sizeof(num_blocks), 0);
-        printf("Num blocks to recieve = %d\n", num_blocks);
-
-        // send acknowledgement
-        bool is_reached = true;
-        send(client_socket, &is_reached, sizeof(is_reached), 0);
-
-        // recieve blocks
-        string file_content = recieve_file(client_socket, file_size, num_blocks);
-
-        cache_file(string(filename), file_content);
-
-        printf("Finished recieving file from the server\n");
+        get_served(client_socket, filename);
 
         close(client_socket);
     }

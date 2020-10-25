@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -18,7 +19,6 @@ using namespace std;
     @params --> string filename
     @return --> size of the file having name filename
     @desc   --> gets the size of the file and returns the size of the file
-
 */
 ifstream::pos_type filesize(const char *filename)
 {
@@ -31,7 +31,6 @@ ifstream::pos_type filesize(const char *filename)
     @params --> string filename
     @return --> length of filename
     @desc   --> uses filesize() func to get the size of the file and return to the user
-
 */
 int get_length(char *filename)
 {
@@ -51,7 +50,6 @@ int get_length(char *filename)
     @params --> int client_socket, string filename, int filesize
     @return --> void
     @desc   --> breaks the file into blocks and sends them to the server
-
 */
 void send_blocks(int client_socket, string content, int filesize, int num_blocks)
 {
@@ -86,7 +84,6 @@ void send_blocks(int client_socket, string content, int filesize, int num_blocks
     @params --> int client_socket, string filename, int filesize
     @return --> void
     @desc   --> breaks the file into blocks and sends each block to the client connected via client socket
-
 */
 void send_file(int client_socket, char *filename, int filesize)
 {
@@ -120,9 +117,31 @@ void send_file(int client_socket, char *filename, int filesize)
 }
 
 /*
+    @name   --> serve_client
+    @params --> int client_socket
+    @return --> void
+    @desc   --> recieves the client socket and serves the requests of the client
+*/
+void serve_client(int client_socket)
+{
+    char filename[1024];
+    recv(client_socket, &filename, sizeof(filename), 0);
 
+    printf("%s\n", filename);
+
+    // get_len(filename)
+    int file_length = get_length(filename);
+
+    send(client_socket, &file_length, sizeof(file_length), 0);
+
+    send_file(client_socket, filename, file_length);
+
+    // close connection
+    close(client_socket);
+}
+
+/*
     Driver program
-
 */
 int main()
 {
@@ -145,21 +164,7 @@ int main()
     {
         int client_socket = accept(server_socket, NULL, NULL);
 
-        // receive filename
-        char filename[1024];
-        recv(client_socket, &filename, sizeof(filename), 0);
-
-        printf("%s\n", filename);
-
-        // get_len(filename)
-        int file_length = get_length(filename);
-
-        send(client_socket, &file_length, sizeof(file_length), 0);
-
-        send_file(client_socket, filename, file_length);
-
-        // close connection
-        close(client_socket);
+        serve_client(client_socket);
     }
 
     // socket struct
