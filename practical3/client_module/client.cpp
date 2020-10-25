@@ -1,6 +1,5 @@
-// #include <iostream>
-#include <stdio.h>
 #include <fstream>
+#include <iostream>
 #include <string>
 
 #include <sys/stat.h>
@@ -197,7 +196,14 @@ string recieve_file(int client_socket, int file_size, int num_blocks)
 */
 void get_served(int client_socket, char *filename)
 {
-    send(client_socket, filename, sizeof(filename), 0);
+    printf("Filename sending to the server = %s\n", filename);
+
+    int file_name_len = string(filename).size();
+
+    // send a file and a header
+
+    cout << file_name_len << endl;
+    send(client_socket, filename, (file_name_len), 0);
 
     // recieve length of file
     int file_size;
@@ -238,7 +244,7 @@ void get_served(int client_socket, char *filename)
 int main()
 {
     // ifstream fin("./cache/cache_record.txt", "r");
-    char filename[] = "./folder1/file_to_recieve.txt";
+    char filename[] = "./folder1/file1.txt";
 
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 

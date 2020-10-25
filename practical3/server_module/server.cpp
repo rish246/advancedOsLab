@@ -1,7 +1,7 @@
-
-#include <iostream>
 #include <string>
 #include <fstream>
+#include <iostream>
+
 #include <math.h>
 
 #include <sys/socket.h>
@@ -127,6 +127,11 @@ void serve_client(int client_socket)
     char filename[1024];
     recv(client_socket, &filename, sizeof(filename), 0);
 
+    // rectify filename.cpp
+    string filename_str(filename);
+
+    cout << filename_str.size();
+
     printf("%s\n", filename);
 
     // get_len(filename)
@@ -166,6 +171,9 @@ int main()
 
         serve_client(client_socket);
     }
+
+    fflush(stdout);
+    close(server_socket);
 
     // socket struct
 }
