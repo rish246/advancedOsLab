@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <string.h>
 
 #include <math.h>
 
@@ -32,8 +33,9 @@ ifstream::pos_type filesize(const char *filename)
     @return --> length of filename
     @desc   --> uses filesize() func to get the size of the file and return to the user
 */
-int get_length(char *filename)
+int get_length(const char *filename)
 {
+    printf("%s\n", filename);
 
     ifstream fin(filename);
 
@@ -75,7 +77,7 @@ void send_blocks(int client_socket, string content, int filesize, int num_blocks
         // send buffer
         send(client_socket, &buffer, sizeof(buffer), 0);
 
-        cout << "Block " << i << " sent to the client" << endl;
+        // cout << "Block " << i << " sent to the client" << endl;
     }
 }
 
@@ -85,7 +87,7 @@ void send_blocks(int client_socket, string content, int filesize, int num_blocks
     @return --> void
     @desc   --> breaks the file into blocks and sends each block to the client connected via client socket
 */
-void send_file(int client_socket, char *filename, int filesize)
+void send_file(int client_socket, const char *filename, int filesize)
 {
     int max_block_size = 1024;
 
@@ -115,6 +117,47 @@ void send_file(int client_socket, char *filename, int filesize)
     cout << "file send to client ..... " << endl;
     cout << "Closing connection ...... " << endl;
 }
+/*
+    @name   --> get_file_ts
+    @params --> char *filename
+    @return --> last update timestamp of filename
+    @desc   --> looks up for the last update timestamp of the filename and returns it
+
+*/
+time_t get_file_ts(const char *filename)
+{
+    string filename_str = string(filename);
+
+    // open directory.txt
+    ifstream fin_dir("./directory.txt");
+
+    time_t final_update_ts;
+    while (!fin_dir.eof())
+    {
+
+        string cur_filename;
+        time_t cur_ts;
+
+        fin_dir >> cur_filename >> cur_ts;
+
+        cout << "getting the last update timestamp of the file " << endl;
+        cout << cur_ts << endl;
+
+        cout << "................................................" << endl;
+
+        if (cur_filename == filename_str)
+        {
+            final_update_ts = cur_ts;
+            break;
+        }
+    }
+
+    cout << "Printing the final ts of the filename" << endl;
+    cout << final_update_ts << endl;
+
+    cout << "......................................" << endl;
+    return final_update_ts;
+}
 
 /*
     @name   --> serve_client
@@ -124,25 +167,46 @@ void send_file(int client_socket, char *filename, int filesize)
 */
 void serve_client(int client_socket)
 {
-    char filename[1024];
-    recv(client_socket, &filename, sizeof(filename), 0);
 
-    // rectify filename.cpp
-    string filename_str(filename);
+    char datagram[1024];
 
-    cout << filename_str.size();
+    recv(client_socket, &datagram, sizeof(datagram), 0);
 
-    printf("%s\n", filename);
+    printf("%s\n", datagram);
 
-    // get_len(filename)
-    int file_length = get_length(filename);
+    // extract filename and header from datagram
+    char header = datagram[0];
 
-    send(client_socket, &file_length, sizeof(file_length), 0);
+    string payload = string(datagram).substr(1, string(datagram).size());
 
-    send_file(client_socket, filename, file_length);
+    const char *filename = payload.c_str();
 
-    // close connection
-    close(client_socket);
+    // if operation is 0, then send file
+    if (header == '0')
+    {
+        int file_length = get_length(filename);
+
+        cout << "GOT FILE LENGTH = " << file_length << endl;
+
+        send(client_socket, &file_length, sizeof(file_length), 0);
+
+        cout << file_length << endl;
+
+        send_file(client_socket, filename, file_length);
+    }
+    // else send the timestamp details of the file
+    else if (header == '1')
+    {
+        cout << "Recieved request for timestamp" << endl;
+        // get timestamp of filename
+        time_t file_write_ts = get_file_ts(filename);
+
+        // send timestamp of filename
+        send(client_socket, &file_write_ts, sizeof(file_write_ts), 0);
+    }
+
+    // // close connection
+    // close(client_socket);
 }
 
 /*
@@ -169,11 +233,16 @@ int main()
     {
         int client_socket = accept(server_socket, NULL, NULL);
 
-        serve_client(client_socket);
-    }
 
-    fflush(stdout);
-    close(server_socket);
+        while (true)
+        {
+            serve_client(client_socket);
+
+            fflush(stdout);
+        }
+
+        close(server_socket);
+    }
 
     // socket struct
 }
