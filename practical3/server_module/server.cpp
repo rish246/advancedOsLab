@@ -250,7 +250,7 @@ int main()
             fflush(stdout);
         }
 
-        close(server_socket);
+        close(client_socket);
     }
 
     // socket struct
