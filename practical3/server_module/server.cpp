@@ -239,19 +239,17 @@ int main()
     listen(server_socket, 5);
 
     // recieve connection
+
+    int client_socket = accept(server_socket, NULL, NULL);
+
     while (true)
     {
-        int client_socket = accept(server_socket, NULL, NULL);
-
-        while (true)
-        {
-            serve_client(client_socket);
-
-            fflush(stdout);
-        }
-
-        close(client_socket);
+        serve_client(client_socket);
     }
+
+    fflush(stdout);
+
+    close(server_socket);
 
     // socket struct
 }
