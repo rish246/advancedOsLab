@@ -27,16 +27,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bb299bb9-fca1-4080-b6f1-f87c6e7cf558" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/client_module/cache/cache_record.txt" beforeDir="false" afterPath="$PROJECT_DIR$/client_module/cache/cache_record.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client_module/cache/folder1/file_to_recieve.txt" beforeDir="false" afterPath="$PROJECT_DIR$/client_module/cache/folder1/file_to_recieve.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client_module/cache/folder1/file_to_recieve.txt)" beforeDir="false" afterPath="$PROJECT_DIR$/client_module/cache/folder1/file_to_recieve.txt)" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client_module/client" beforeDir="false" afterPath="$PROJECT_DIR$/client_module/client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client_module/client.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/client_module/client.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_module/directory.txt" beforeDir="false" afterPath="$PROJECT_DIR$/server_module/directory.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_module/server" beforeDir="false" afterPath="$PROJECT_DIR$/server_module/server" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_module/server.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/server_module/server.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="bb299bb9-fca1-4080-b6f1-f87c6e7cf558" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,7 +74,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1603774719558</updated>
-      <workItem from="1603774721607" duration="4584000" />
+      <workItem from="1603774721607" duration="4927000" />
     </task>
     <servers />
   </component>

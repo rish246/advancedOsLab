@@ -35,7 +35,6 @@ ifstream::pos_type filesize(const char *filename)
 */
 int get_length(const char *filename)
 {
-    printf("%s\n", filename);
 
     ifstream fin(filename);
 
@@ -104,8 +103,10 @@ void send_file(int client_socket, const char *filename, int filesize)
         // recv ack
         recv(client_socket, &is_recieved, sizeof(is_recieved), 0);
     }
+    cout << "---------------------------------------" << endl;
 
     printf("Acknowledgement recieved... sending file..\n");
+    cout << "---------------------------------------" << endl;
 
     ifstream ifs(filename);
     string content((std::istreambuf_iterator<char>(ifs)),
@@ -113,9 +114,11 @@ void send_file(int client_socket, const char *filename, int filesize)
 
     // send file to client in blocks
     send_blocks(client_socket, content, filesize, num_blocks);
+    cout << "---------------------------------------" << endl;
 
     cout << "file send to client ..... " << endl;
     cout << "Closing connection ...... " << endl;
+    cout << "---------------------------------------" << endl;
 }
 /*
     @name   --> get_file_ts
@@ -140,10 +143,12 @@ time_t get_file_ts(const char *filename)
 
         fin_dir >> cur_filename >> cur_ts;
 
+        cout << "---------------------------------------" << endl;
+
         cout << "getting the last update timestamp of the file " << endl;
         cout << cur_ts << endl;
 
-        cout << "................................................" << endl;
+        cout << "---------------------------------------" << endl;
 
         if (cur_filename == filename_str)
         {
@@ -152,10 +157,12 @@ time_t get_file_ts(const char *filename)
         }
     }
 
+    cout << "---------------------------------------" << endl;
+
     cout << "Printing the final ts of the filename" << endl;
     cout << final_update_ts << endl;
 
-    cout << "......................................" << endl;
+    cout << "---------------------------------------" << endl;
     return final_update_ts;
 }
 
@@ -172,8 +179,6 @@ void serve_client(int client_socket)
 
     recv(client_socket, &datagram, sizeof(datagram), 0);
 
-    printf("%s\n", datagram);
-
     // extract filename and header from datagram
     char header = datagram[0];
 
@@ -186,7 +191,10 @@ void serve_client(int client_socket)
     {
         int file_length = get_length(filename);
 
+        cout << "---------------------------------------" << endl;
+
         cout << "GOT FILE LENGTH = " << file_length << endl;
+        cout << "---------------------------------------" << endl;
 
         send(client_socket, &file_length, sizeof(file_length), 0);
 
@@ -197,6 +205,8 @@ void serve_client(int client_socket)
     // else send the timestamp details of the file
     else if (header == '1')
     {
+        cout << "---------------------------------------" << endl;
+
         cout << "Recieved request for timestamp" << endl;
         // get timestamp of filename
         time_t file_write_ts = get_file_ts(filename);
@@ -232,7 +242,6 @@ int main()
     while (true)
     {
         int client_socket = accept(server_socket, NULL, NULL);
-
 
         while (true)
         {
