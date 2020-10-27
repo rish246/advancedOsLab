@@ -1,2 +1,7 @@
 *.out
 *.vscode/
+*/client
+*/server
+optional_work/
+socketProgrammingTutorial/
+multithreading_tutorial/
