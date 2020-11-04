@@ -15,6 +15,8 @@ const int PORT = 5400;
 
 void serve_client(int client_socket)
 {
+    /*             Recieving initial response from the client               */
+    ///////////////////////////////////////////////////////
     char server_response[] = "Congrats.. You've reached the server";
 
     // send server response to the client
@@ -25,6 +27,11 @@ void serve_client(int client_socket)
     recv(client_socket, &client_response, sizeof(client_response), 0);
 
     printf("Client sent a message : %s\n", client_response);
+    ////////////////////////////////////////////////////////////////
+
+    /*             Sending a response back to the client               */
+
+    ///////////////////////////////////////////////////////////////////
     char append_server_response[] = "... You have reached the server";
 
     int final_response_size = strlen(client_response) + strlen(server_response) + 1;
@@ -36,6 +43,8 @@ void serve_client(int client_socket)
     send(client_socket, final_server_response, final_response_size, 0);
 
     printf("Final repsonse to the client : \n\t%s\n", final_server_response);
+    //////////////////////////////////////////////////////////////////////////
+
     printf("One more client served\n\n");
 }
 

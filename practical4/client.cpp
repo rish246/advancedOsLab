@@ -15,6 +15,8 @@ const int PORT = 5400;
 
 int main()
 {
+
+    /* Basic connection code */
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     // server object
@@ -26,6 +28,8 @@ int main()
     // connect to server
     connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
     // print("response")
+
+    /*          Recieve a responce from server after connecting                 */
     char server_response[2048];
 
     recv(client_socket, &server_response, sizeof(server_response), 0);
@@ -33,6 +37,7 @@ int main()
     printf("%s\n", server_response);
     // send string
 
+    /*              Send your name to the server                            */
     char name[1024];
     printf("Enter your name : ");
     fgets(name, sizeof(name), stdin);
@@ -40,6 +45,8 @@ int main()
     send(client_socket, name, sizeof(name), 0);
 
     // input name
+
+    /*              Recieve a response from the server                      */
     char final_server_response[2048];
     recv(client_socket, final_server_response, sizeof(final_server_response), 0);
 
