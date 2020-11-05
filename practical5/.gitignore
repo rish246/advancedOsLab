@@ -1,0 +1,5 @@
+cmake-build-debug/
+client
+server
+CMakeLists.txt
+.idea/
