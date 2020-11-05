@@ -1,0 +1,4 @@
+/home/rishabh/Documents/course_work/lab_practical/advanced_os/practical5/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/rishabh/Documents/course_work/lab_practical/advanced_os/practical5/cmake-build-debug/CMakeFiles/server.dir
+/home/rishabh/Documents/course_work/lab_practical/advanced_os/practical5/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/rishabh/Documents/course_work/lab_practical/advanced_os/practical5/cmake-build-debug/CMakeFiles/client.dir
