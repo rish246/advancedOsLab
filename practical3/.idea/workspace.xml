@@ -27,7 +27,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bb299bb9-fca1-4080-b6f1-f87c6e7cf558" name="Default Changelist" comment="" />
+    <list default="true" id="bb299bb9-fca1-4080-b6f1-f87c6e7cf558" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../practical1/17mi552_advancedOS_lab.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../practical1/practical_report_reworked.odt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../practical2/pageReplacement.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../practical2/pageReplacement.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,13 +64,6 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager">
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -75,6 +73,7 @@
       <option name="presentableId" value="Default" />
       <updated>1603774719558</updated>
       <workItem from="1603774721607" duration="4927000" />
+      <workItem from="1604574828589" duration="13000" />
     </task>
     <servers />
   </component>
@@ -91,6 +90,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="454" y="211" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1603774938795">
