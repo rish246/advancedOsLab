@@ -11,6 +11,8 @@
 #include <unistd.h>
 
 using namespace std;
+#define MOD_GET_FILE 0
+#define MOD_UPDATE_FILE 1
 
 const int PORT = 5400;
 
@@ -102,7 +104,7 @@ bool is_path_exits(string path)
     @return -> void
     @desc   -> create a new file and writes the filecontent in the file in cache folder 
 */
-void cache_file(string filename, const string &filecontent)
+void cache_file(string filename, const string &filecontent, int mode = MOD_GET_FILE)
 {
     // extract dir name
     string dirname = extract_dirname(filename);
@@ -156,20 +158,16 @@ void cache_file(string filename, const string &filecontent)
         // create an entry in cache
         ofstream cache_record_file("./cache/cache_record.txt", ios::app);
 
-        /*
+        if (mode == MOD_GET_FILE)
+        {
+            time_t cache_timestamp = time(NULL);
 
-        @TODO -> make changes in the construction of a cache record
-        @Fields -> filename timestamp
+            cache_record_file << filename << ' ' << cache_timestamp << endl;
 
-
-        */
-        time_t cache_timestamp = time(NULL);
-
-        cache_record_file << filename << ' ' << cache_timestamp << endl;
+            cache_record_file.close();
+        }
 
         main_file.close();
-
-        cache_record_file.close();
 
         return;
     }
@@ -272,7 +270,7 @@ time_t get_file_cache_ts(const char *filename)
 
     ifstream fin_cache("./cache/cache_record.txt");
 
-    time_t cache_file_ts;
+    time_t cache_file_ts = 0;
     while (!fin_cache.eof())
     {
 
@@ -280,6 +278,9 @@ time_t get_file_cache_ts(const char *filename)
         time_t cur_ts;
 
         fin_cache >> cur_filename >> cur_ts;
+
+        if (cur_filename.empty())
+            continue;
 
         if (cur_filename == filename_str)
         {
@@ -364,6 +365,11 @@ void update_cache(const char *filename, time_t new_ts, time_t old_ts)
 
     ofstream fout("./cache/cache_record.txt");
 
+    cout << " <<<<<<<<< FINAL CONTENT OF THE CACHE >>>>>>>>>>>>>>>>>>>>" << endl;
+    cout << content << endl;
+    cout << endl;
+    cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
+
     fout << content << endl;
 
     fout.close();
@@ -409,7 +415,7 @@ string get_file_from_server(int client_socket, char filename[])
     recv(client_socket, &file_size, sizeof(file_size), 0);
 
     // // // revieve file from server
-    cout << file_size << endl;
+    cout << "SIZE OF FILE : " << file_size << endl;
 
     int num_blocks;
 
@@ -440,8 +446,6 @@ int main()
     // ifstream fin("./cache/cache_record.txt", "r");
     char filename[] = "./folder1/file_to_recieve.txt";
 
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-
     // server object
     sockaddr_in server_address;
     server_address.sin_family = AF_INET;
@@ -450,6 +454,8 @@ int main()
 
     if (!is_in_cache(filename))
     {
+        int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+
         // connect to the client
         connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
 
@@ -464,6 +470,8 @@ int main()
     }
     else
     {
+        int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+
         connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
 
         cout << "Require timestamp" << endl;
@@ -471,6 +479,8 @@ int main()
         time_t last_update_ts = recieve_timestamp_from_server(client_socket, filename);
 
         time_t client_cache_ts = get_file_cache_ts(filename);
+
+        close(client_socket);
 
         if (difftime(last_update_ts, client_cache_ts) <= 0)
         {
@@ -483,23 +493,24 @@ int main()
         }
         else
         {
+            int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+            connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
 
             cout << "---------------------------------------" << endl;
 
             cout << "File updated at server " << endl;
 
             cout << "---------------------------------------" << endl;
-            // close(client_socket);
-            // make sure that file is fetched in this case
-            connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
 
             string file_content = get_file_from_server(client_socket, filename);
 
-            // this func not working
-            // make sure the timestamps are rig
+            cache_file(string(filename), file_content, MOD_UPDATE_FILE);
+            // update the cache with the new file content
             update_cache(filename, last_update_ts, client_cache_ts);
 
             close(client_socket);
+
             // update_cache(filename, )
         }
     }
