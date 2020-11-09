@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <sstream>
 
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -40,19 +42,21 @@ bool is_in_cache(char *file_name)
     // ifstream fin("./cache/cache_record.txt", "r");
     ifstream fin("./cache/cache_record.txt");
 
+    string content((std::istreambuf_iterator<char>(fin)),
+                   (std::istreambuf_iterator<char>()));
+
     string filename_str(file_name);
 
-    while (!fin.eof())
+    istringstream iss(content);
+
+    string cur_filename;
+
+    // check each filename in cache and check if it already exits
+    while (iss >> cur_filename)
     {
-        string cur_filename;
-        time_t timestamp;
-        fin >> cur_filename >> timestamp;
-
-        if (cur_filename == file_name)
+        if (cur_filename == filename_str)
         {
-
             cout << "---------------------------------------" << endl;
-
             cout << "file " << filename_str << " found in cache" << endl;
             cout << "---------------------------------------" << endl;
 
@@ -75,15 +79,12 @@ string extract_dirname(const string &path)
 {
     string dirname = path;
 
-    int loc_last_slash = 0;
-    for (int i = 0; i < dirname.size(); i++)
-    {
-        if (dirname[i] == '/')
-            loc_last_slash = i;
-    }
-    dirname = dirname.substr(0, loc_last_slash);
+    int loc_last_slash = dirname.size() - 1;
 
-    return dirname;
+    while (dirname[loc_last_slash] != '/')
+        loc_last_slash--;
+
+    return dirname.substr(0, loc_last_slash);
 }
 
 /*
@@ -127,54 +128,70 @@ void cache_file(string filename, const string &filecontent, int mode = MOD_GET_F
         else
         {
             cout << "---------------------------------------" << endl;
-
             printf("Couldn't create a new directory.. please try again\n");
             cout << "---------------------------------------" << endl;
+            exit(-1);
         }
     }
 
-    // create a file in the folder
-    if (is_path_exits(dirname_cache))
+    string filename_cache = "./cache" + filename.substr(1, filename.size());
+    // create a new file
+    ofstream main_file(filename_cache, ios::out);
+
+    // open the filename in the cache
+    if (!main_file.is_open())
     {
-        string filename_cache = "./cache" + filename.substr(1, filename.size());
-        // create a new file
-        ofstream main_file(filename_cache, ios::out);
+        cout << "---------------------------------------" << endl;
+        printf("Couldn't open the file... Error occured");
+        cout << "---------------------------------------" << endl;
 
-        // open the filename in the cache
-        if (!main_file.is_open())
-        {
-            cout << "---------------------------------------" << endl;
-
-            printf("Couldn't open the file... Error occured");
-
-            cout << "---------------------------------------" << endl;
-
-            return;
-        }
-
-        // start writing filecontent to file
-        main_file << filecontent << endl;
-
-        // create an entry in cache
-        ofstream cache_record_file("./cache/cache_record.txt", ios::app);
-
-        if (mode == MOD_GET_FILE)
-        {
-            time_t cache_timestamp = time(NULL);
-
-            cache_record_file << filename << ' ' << cache_timestamp << endl;
-
-            cache_record_file.close();
-        }
-
-        main_file.close();
-
-        return;
+        exit(-1);
     }
 
-    printf("Couldn't find the folder to store the file\n");
+    // start writing filecontent to file
+    main_file << filecontent << endl;
+
+    // create an entry in cache
+    ofstream cache_record_file("./cache/cache_record.txt", ios::app);
+
+    if (mode == MOD_GET_FILE)
+    {
+        time_t cache_timestamp = time(NULL);
+
+        cache_record_file << filename << ' ' << cache_timestamp << endl;
+
+        cache_record_file.close();
+    }
+
+    main_file.close();
 }
 
+/*
+    @name   --> send_filename_datagram
+    @params --> int client_socket, string filename
+    @return --> void
+    @desc   --> takes the filename, adds a header('0') and send the datagram to the server
+*/
+void send_datagram(int client_socket, char header, string filename)
+{
+    int filename_len = filename.size();
+
+    int datagram_len = filename_len + 1;
+    // send the whole header
+
+    // construct header
+    string datagram = header + string(filename);
+
+    const char *filename_datagram = datagram.c_str();
+
+    printf("%s\n", filename_datagram);
+
+    send(client_socket, filename_datagram, datagram_len, 0);
+
+    cout << "-----------------------------------------" << endl;
+    cout << "Filename datagram sent to the server \t:\t" << string(filename_datagram) << endl;
+    cout << "---------------------------------------" << endl;
+}
 /*
     @name   --> recieve_timestamp_from_server
     @params --> int client_socket, string filename
@@ -183,79 +200,15 @@ void cache_file(string filename, const string &filecontent, int mode = MOD_GET_F
 */
 time_t recieve_timestamp_from_server(int client_socket, const char *filename)
 {
-    // cout << "Func called" << endl;
-
     time_t last_update_timestamp = time(NULL);
-    // header = '1'
-    int filename_len = string(filename).size();
 
-    int datagram_len = filename_len + 1;
+    send_datagram(client_socket, '1', string(filename));
 
-    // construct header
-    char header = '1';
-
-    // datagram
-    string datagram = header + string(filename);
-
-    // final datagram
-    const char *timestamp_datagram = datagram.c_str();
-
-    printf("%s\n", timestamp_datagram);
-
-    // send datagram
-    if (send(client_socket, timestamp_datagram, datagram_len, 0) < 0)
-    {
-        cout << "---------------------------------------" << endl;
-
-        cerr << "Couldn't send the timestamp datagram" << endl;
-
-        cout << "---------------------------------------" << endl;
-
-        return time(NULL);
-    }
-
-    cout << "sent timestamp_datagram" << endl;
-
-    // recv ts
     recv(client_socket, &last_update_timestamp, sizeof(last_update_timestamp), 0);
-
-    // recieve time_t
 
     return last_update_timestamp;
 }
 
-/*
-    @name   --> recieve_file
-    @params --> int client_socket, int file_size, int num_blocks
-    @return --> string file_content
-    @desc   --> recieves num_blocks from server and store the blocks in a string... 
-*/
-string recieve_file(int client_socket, int file_size, int num_blocks)
-{
-    string file_content;
-    int max_block_size = 1024;
-    for (int i = 0; i < num_blocks; i++)
-    {
-        // fix bug in this code
-
-        int cur_block_size = min(max_block_size, (file_size - (i * max_block_size)));
-
-        char buffer[cur_block_size];
-
-        recv(client_socket, &buffer, sizeof(buffer), 0);
-
-        // printf("%s\n", buffer);
-
-        string buffer_str(buffer);
-        file_content += buffer_str;
-
-        // printf("Block number %d recieved by the client\n", i);
-
-        // printf("%s\n", buffer);
-    }
-
-    return file_content;
-}
 /*
     @name   --> get_file_cache_ts
     @params --> string filename
@@ -264,42 +217,24 @@ string recieve_file(int client_socket, int file_size, int num_blocks)
 */
 time_t get_file_cache_ts(const char *filename)
 {
-
-    // look into cache_dir
-    string filename_str(filename);
-
     ifstream fin_cache("./cache/cache_record.txt");
 
-    time_t cache_file_ts = 0;
+    string filename_str(filename), cur_filename;
+
+    time_t cache_file_ts = 0, cur_ts;
+
     while (!fin_cache.eof())
     {
-
-        string cur_filename;
-        time_t cur_ts;
-
         fin_cache >> cur_filename >> cur_ts;
 
         if (cur_filename.empty())
             continue;
 
         if (cur_filename == filename_str)
-        {
-            cout << "---------------------------------------" << endl;
-
-            cout << cur_filename << '\n'
-                 << cur_ts << endl;
-
-            cout << "---------------------------------------" << endl;
-
             return cur_ts;
-        }
     }
 
     return cache_file_ts;
-
-    // if filename == cur_filename
-
-    // return ts
 }
 
 /*
@@ -319,7 +254,6 @@ void update_cache(const char *filename, time_t new_ts, time_t old_ts)
     // read content of file in better way
     while (!fin.eof())
     {
-
         string fn, ts;
 
         fin >> fn >> ts;
@@ -330,36 +264,17 @@ void update_cache(const char *filename, time_t new_ts, time_t old_ts)
     // find old
     string to_remove = string(filename) + ' ' + to_string(old_ts);
 
-    cout << "............ Remove string ....................." << endl;
-    cout << to_remove << endl;
-    cout << "................................................." << endl;
-
     string to_insert = string(filename) + ' ' + to_string(new_ts);
 
-    cout << "................ Insert string .................." << endl;
-    cout << to_insert << endl;
-    cout << "................................................." << endl;
     // remove string from content
-    int pos = content.find(to_remove);
+    size_t pos = content.find(to_remove);
 
     if (pos != string::npos)
     {
-
-        cout << "------ record found at string -----------" << endl;
-
-        cout << pos << endl;
-
-        cout << "-------------------------------------------" << endl;
-
-        // to_remove ... not being removed
         content.erase(pos, to_remove.size());
 
         content += to_insert;
     }
-    cout << "File content of cache record" << endl;
-    cout << "..............................." << endl;
-    cout << content << endl;
-    cout << "..............................." << endl;
 
     fin.close();
 
@@ -374,6 +289,33 @@ void update_cache(const char *filename, time_t new_ts, time_t old_ts)
 
     fout.close();
 }
+
+/*
+    @name   --> recieve_file
+    @params --> int client_socket, int file_size, int num_blocks
+    @return --> string file_content
+    @desc   --> recieves num_blocks from server and store the blocks in a string... 
+*/
+string recieve_file(int client_socket, int file_size, int num_blocks)
+{
+    string file_content;
+    int max_block_size = 1024;
+    for (int i = 0; i < num_blocks; i++)
+    {
+        // get size of current block to be recieved
+        int cur_block_size = min(max_block_size, (file_size - (i * max_block_size)));
+
+        char buffer[cur_block_size];
+
+        // recieve block and store it in buffer
+        recv(client_socket, &buffer, sizeof(buffer), 0);
+
+        file_content += string(buffer);
+    }
+
+    return file_content;
+}
+
 /*
     @name   --> get_file_from_server
     @params --> int client_socket, string filename
@@ -384,45 +326,24 @@ string get_file_from_server(int client_socket, char filename[])
 {
     printf("Filename sending to the server = %s\n", filename);
 
-    /////////////////////////////////////////////////////
-    /*
-    @TODO --> add a header to the filename 
-            ==> header shows the type of request being sent to the server
+    // send filename datagram
+    send_datagram(client_socket, '0', string(filename));
+    /////////////////////////////////////////////////////////////
+    /* 
+        GET : Size of file from the server
     */
-    int filename_len = string(filename).size();
-
-    int datagram_len = filename_len + 1;
-    char header = '0';
-    // send the whole header
-
-    // construct header
-    string datagram = header + string(filename);
-
-    const char *filename_datagram = datagram.c_str();
-
-    printf("%s\n", filename_datagram);
-
-    send(client_socket, filename_datagram, datagram_len, 0);
-
-    cout << "-----------------------------------------" << endl;
-
-    cout << "Filename datagram sent to the server" << string(filename_datagram) << endl;
-    /////////////////////////////////////////////////
-    cout << "---------------------------------------" << endl;
-
-    // // recieve length of file
     int file_size;
     recv(client_socket, &file_size, sizeof(file_size), 0);
 
     // // // revieve file from server
     cout << "SIZE OF FILE : " << file_size << endl;
+    //////////////////////////////////////////////////////////////
 
     int num_blocks;
 
     recv(client_socket, &num_blocks, sizeof(num_blocks), 0);
 
     cout << "---------------------------------------" << endl;
-
     printf("Num blocks to recieve = %d\n", num_blocks);
     cout << "---------------------------------------" << endl;
 
@@ -482,6 +403,7 @@ int main()
 
         close(client_socket);
 
+        /* Check if File was updated at the server after it was cached on this computer */
         if (difftime(last_update_ts, client_cache_ts) <= 0)
         {
 
@@ -498,9 +420,7 @@ int main()
             connect(client_socket, (sockaddr *)&server_address, sizeof(server_address));
 
             cout << "---------------------------------------" << endl;
-
             cout << "File updated at server " << endl;
-
             cout << "---------------------------------------" << endl;
 
             string file_content = get_file_from_server(client_socket, filename);
