@@ -125,7 +125,6 @@ void send_file(int client_socket, const char *filename, int filesize)
     @params --> char *filename
     @return --> last update timestamp of filename
     @desc   --> looks up for the last update timestamp of the filename and returns it
-
 */
 time_t get_file_ts(const char *filename)
 {
@@ -134,7 +133,7 @@ time_t get_file_ts(const char *filename)
     // open directory.txt
     ifstream fin_dir("./directory.txt");
 
-    time_t final_update_ts;
+    time_t final_update_ts = 0;
     while (!fin_dir.eof())
     {
 
@@ -174,11 +173,11 @@ time_t get_file_ts(const char *filename)
 */
 void serve_client(int client_socket)
 {
-
     char datagram[1024];
 
     recv(client_socket, &datagram, sizeof(datagram), 0);
 
+    printf("DATAGRAM HEADER : %s\n", datagram);
     // extract filename and header from datagram
     char header = datagram[0];
 
@@ -240,11 +239,18 @@ int main()
 
     // recieve connection
 
-    int client_socket = accept(server_socket, NULL, NULL);
-
     while (true)
     {
-        serve_client(client_socket);
+        int client_socket = accept(server_socket, NULL, NULL);
+
+        if (client_socket != -1)
+        {
+            cout << "Client connected to the server... " << endl;
+
+            serve_client(client_socket);
+
+            close(client_socket);
+        }
     }
 
     fflush(stdout);
