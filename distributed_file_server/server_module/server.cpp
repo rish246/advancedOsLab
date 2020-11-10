@@ -57,8 +57,6 @@ void send_blocks(int client_socket, string content, int filesize, int num_blocks
     int max_block_size = 1024;
     for (int i = 0; i < num_blocks; i++)
     {
-        // this code has bug
-        // fix this code
 
         int start_ptr = i * max_block_size;
         int end_ptr = min((i + 1) * max_block_size, filesize);
@@ -104,7 +102,6 @@ void send_file(int client_socket, const char *filename, int filesize)
         recv(client_socket, &is_recieved, sizeof(is_recieved), 0);
     }
     cout << "---------------------------------------" << endl;
-
     printf("Acknowledgement recieved... sending file..\n");
     cout << "---------------------------------------" << endl;
 
@@ -116,9 +113,11 @@ void send_file(int client_socket, const char *filename, int filesize)
     send_blocks(client_socket, content, filesize, num_blocks);
     cout << "---------------------------------------" << endl;
 
-    cout << "file send to client ..... " << endl;
-    cout << "Closing connection ...... " << endl;
-    cout << "---------------------------------------" << endl;
+    cout << ".........file send to client ..... " << endl;
+    cout << ".........Closing connection ...... " << endl;
+    cout << "---------------------------------------" << endl
+         << endl
+         << endl;
 }
 /*
     @name   --> get_file_ts
@@ -142,13 +141,6 @@ time_t get_file_ts(const char *filename)
 
         fin_dir >> cur_filename >> cur_ts;
 
-        cout << "---------------------------------------" << endl;
-
-        cout << "getting the last update timestamp of the file " << endl;
-        cout << cur_ts << endl;
-
-        cout << "---------------------------------------" << endl;
-
         if (cur_filename == filename_str)
         {
             final_update_ts = cur_ts;
@@ -156,12 +148,6 @@ time_t get_file_ts(const char *filename)
         }
     }
 
-    cout << "---------------------------------------" << endl;
-
-    cout << "Printing the final ts of the filename" << endl;
-    cout << final_update_ts << endl;
-
-    cout << "---------------------------------------" << endl;
     return final_update_ts;
 }
 
@@ -191,7 +177,6 @@ void serve_client(int client_socket)
         int file_length = get_length(filename);
 
         cout << "---------------------------------------" << endl;
-
         cout << "GOT FILE LENGTH = " << file_length << endl;
         cout << "---------------------------------------" << endl;
 
@@ -205,7 +190,6 @@ void serve_client(int client_socket)
     else if (header == '1')
     {
         cout << "---------------------------------------" << endl;
-
         cout << "Recieved request for timestamp" << endl;
         // get timestamp of filename
         time_t file_write_ts = get_file_ts(filename);
