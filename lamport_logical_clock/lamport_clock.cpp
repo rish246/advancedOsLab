@@ -13,7 +13,7 @@ public:
 
     void print_stats()
     {
-        cout << "e" << process_id << sequence_number << "(timer = " << timer << ")"
+        cout << "e" << process_id << sequence_number << "(" << timer << ")"
              << " --> ";
     }
 };
@@ -22,12 +22,11 @@ class Process
 {
 public:
     int timer = 1, priority, seq_number = 1;
+
+    /* List of events happening in this process */
     vector<event> process_events;
 
-    Process(int priority)
-    {
-        this->priority = priority;
-    }
+    Process(int _priority) : priority(_priority) {}
 
     void new_event()
     {
@@ -43,6 +42,9 @@ public:
     // send a message to another process
     void send_message(Process &p)
     {
+        cout << "Message sent: P" << this->priority << "(" << this->timer << ")"
+             << " --> P" << p.priority << "(" << p.timer << ")" << endl;
+
         this->new_event();
 
         p.timer = max(this->timer, p.timer);
@@ -51,7 +53,7 @@ public:
     }
 };
 
-bool on_timer_or_priority(event &e1, event &e2)
+bool on_timer_or_priority(const event &e1, const event &e2)
 {
     if (e1.timer < e2.timer)
         return true;
@@ -62,6 +64,15 @@ bool on_timer_or_priority(event &e1, event &e2)
     return false;
 }
 
+void print_vector(const vector<event> &v)
+{
+    for (event e : v)
+    {
+        e.print_stats();
+    }
+    cout << endl
+         << endl;
+}
 int main()
 {
 
@@ -86,10 +97,13 @@ int main()
     all_events.insert(all_events.end(), p2.process_events.begin(), p2.process_events.end());
 
     /* Sort all events on the basis of timer */
-    sort(all_events.begin(), all_events.end(), on_timer_or_priority);
+    cout << "Order of events in process P1" << endl;
+    print_vector(p1.process_events);
 
-    for (event e : all_events)
-    {
-        e.print_stats();
-    }
+    cout << "Order of events in process P2" << endl;
+    print_vector(p2.process_events);
+
+    cout << "Order of events in the whole system : " << endl;
+    sort(all_events.begin(), all_events.end(), on_timer_or_priority);
+    print_vector(all_events);
 }
