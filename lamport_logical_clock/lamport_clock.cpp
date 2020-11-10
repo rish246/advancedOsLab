@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -12,18 +13,16 @@ public:
 
     void print_stats()
     {
-        cout << "e" << process_id << sequence_number << "( timer = " << timer << ")"
+        cout << "e" << process_id << sequence_number << "(timer = " << timer << ")"
              << " --> ";
     }
 };
 
-vector<event> all_events;
-
 class Process
 {
-
 public:
     int timer = 1, priority, seq_number = 1;
+    vector<event> process_events;
 
     Process(int priority)
     {
@@ -34,7 +33,7 @@ public:
     {
         event e(this->priority, this->seq_number, this->timer);
 
-        all_events.push_back(e);
+        process_events.push_back(e);
 
         this->timer++;
 
@@ -52,13 +51,24 @@ public:
     }
 };
 
+bool on_timer_or_priority(event &e1, event &e2)
+{
+    if (e1.timer < e2.timer)
+        return true;
+
+    if (e1.timer == e2.timer)
+        return (e1.process_id < e2.process_id);
+
+    return false;
+}
+
 int main()
 {
 
     Process p1(1), p2(2);
     /* Event happening in P1 */
-    p1.new_event();
     p2.new_event();
+    p1.new_event();
     p1.new_event();
 
     /* Event happening in P2 */
@@ -70,15 +80,16 @@ int main()
 
     p1.send_message(p2);
 
+    vector<event> all_events;
+
+    all_events.insert(all_events.end(), p1.process_events.begin(), p1.process_events.end());
+    all_events.insert(all_events.end(), p2.process_events.begin(), p2.process_events.end());
+
+    /* Sort all events on the basis of timer */
+    sort(all_events.begin(), all_events.end(), on_timer_or_priority);
+
     for (event e : all_events)
     {
         e.print_stats();
     }
-    cout << " END" << endl;
-    // cout << "TIMER OF PROCESS P1 = " << p1.timer << endl;
-
-    // p3.new_event();
-    // p2.send_message(p3);
-
-    // cout << "TIMER OF PROCESS P3 = " << p3.timer << endl;
 }
