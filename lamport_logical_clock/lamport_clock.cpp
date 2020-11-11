@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
@@ -13,8 +14,7 @@ public:
 
     void print_stats()
     {
-        cout << "e" << process_id << sequence_number << "(" << timer << ")"
-             << " --> ";
+        cout << setw(this->timer) << "e" << process_id << sequence_number << "(" << timer << ")";
     }
 };
 
@@ -23,8 +23,8 @@ class Process
 public:
     int timer = 1, priority, seq_number = 1;
 
-    /* List of events happening in this process */
-    vector<event> process_events;
+    /* Each process maintains its local history */
+    vector<event> local_history;
 
     Process(int _priority) : priority(_priority) {}
 
@@ -32,7 +32,7 @@ public:
     {
         event e(this->priority, this->seq_number, this->timer);
 
-        process_events.push_back(e);
+        local_history.push_back(e);
 
         this->timer++;
 
@@ -91,19 +91,21 @@ int main()
 
     p1.send_message(p2);
 
-    vector<event> all_events;
+    /* construct the global history from the local histories */
+    vector<event> global_history;
 
-    all_events.insert(all_events.end(), p1.process_events.begin(), p1.process_events.end());
-    all_events.insert(all_events.end(), p2.process_events.begin(), p2.process_events.end());
+    /* global history = p1's local history U p2's local history */
+    global_history.insert(global_history.end(), p1.local_history.begin(), p1.local_history.end());
+    global_history.insert(global_history.end(), p2.local_history.begin(), p2.local_history.end());
 
     /* Sort all events on the basis of timer */
     cout << "Order of events in process P1" << endl;
-    print_vector(p1.process_events);
+    print_vector(p1.local_history);
 
     cout << "Order of events in process P2" << endl;
-    print_vector(p2.process_events);
+    print_vector(p2.local_history);
 
     cout << "Order of events in the whole system : " << endl;
-    sort(all_events.begin(), all_events.end(), on_timer_or_priority);
-    print_vector(all_events);
+    sort(global_history.begin(), global_history.end(), on_timer_or_priority);
+    print_vector(global_history);
 }
