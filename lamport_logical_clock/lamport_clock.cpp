@@ -14,23 +14,23 @@ public:
 
     void print_stats()
     {
-        cout << setw(this->timer) << "e" << process_id << sequence_number << "(" << timer << ")";
+        cout << "e" << process_id << sequence_number << "(" << timer << ") --> ";
     }
 };
 
 class Process
 {
 public:
-    int timer = 1, priority, seq_number = 1;
+    int timer = 1, id, seq_number = 1;
 
     /* Each process maintains its local history */
     vector<event> local_history;
 
-    Process(int _priority) : priority(_priority) {}
+    Process(int _id) : id(_id) {}
 
     void new_event()
     {
-        event e(this->priority, this->seq_number, this->timer);
+        event e(this->id, this->seq_number, this->timer);
 
         local_history.push_back(e);
 
@@ -42,8 +42,8 @@ public:
     // send a message to another process
     void send_message(Process &p)
     {
-        cout << "Message sent: P" << this->priority << "(" << this->timer << ")"
-             << " --> P" << p.priority << "(" << p.timer << ")" << endl;
+        cout << "Message sent: P" << this->id << "(" << this->timer << ")"
+             << " --> P" << p.id << "(" << p.timer << ")" << endl;
 
         this->new_event();
 
@@ -53,7 +53,7 @@ public:
     }
 };
 
-bool on_timer_or_priority(const event &e1, const event &e2)
+bool on_timer_or_id(const event &e1, const event &e2)
 {
     if (e1.timer < e2.timer)
         return true;
@@ -106,6 +106,6 @@ int main()
     print_vector(p2.local_history);
 
     cout << "Order of events in the whole system : " << endl;
-    sort(global_history.begin(), global_history.end(), on_timer_or_priority);
+    sort(global_history.begin(), global_history.end(), on_timer_or_id);
     print_vector(global_history);
 }
