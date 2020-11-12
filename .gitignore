@@ -5,3 +5,6 @@
 optional_work/
 socketProgrammingTutorial/
 multithreading_tutorial/
+*.pdf
+*.odt
+
