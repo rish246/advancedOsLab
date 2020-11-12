@@ -6,5 +6,5 @@
 4. SJF job scheduling algorithm
 
 **To run the file, use the following commands.** 
-1. `g++ -o job_schedulers jobSchedulingAlgorithms.cpp`
+1. `g++ -o job_schedulers 17MI552_job_scheduling.cpp`
 1. `./job_schedulers`
