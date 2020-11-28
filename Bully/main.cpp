@@ -29,6 +29,8 @@ public:
     // process starting election
     void start_election(vector<Process> &group)
     {
+        cout << "\t\t Process P" << this->id << " is starting the election" << endl;
+
         for (int i = this->id + 1; i < group.size(); i++)
         {
             cout << "P" << this->id << " --> Election message sent to process P" << i << endl;
@@ -39,13 +41,17 @@ public:
             if (process_response == 1)
             {
                 this->n_replies++;
-                cout << "P" << this->id << " --> Accept message recieved from process P" << this->id << endl;
+                cout << "P" << this->id << " --> Accept message recieved from process P" << group[i].id << endl;
             }
         }
     }
 
     void send_coordinator_message(vector<Process> &group)
     {
+        cout << "-------------------------------------------------------------------------------------" << endl;
+        cout << "\t\tProcess P" << this->id << " is the new coordinator" << endl;
+        cout << "-------------------------------------------------------------------------------------" << endl;
+
         cout << "P" << this->id << " --> Sending coordinator message to the group" << endl;
         for (int i = this->id - 1; i >= 0; i--)
         {
@@ -63,8 +69,8 @@ public:
         else if (type == MESSAGE_COORDINATOR)
         {
             cout << "P" << this->id << " --> Coordinator message recieved from Process : P" << id << endl;
-            return 0;
         }
+        return 0;
     }
 };
 
@@ -88,7 +94,6 @@ int main()
         cout << "-------------------------------------------------------------------------------------" << endl;
         Process &cur_process = group[i];
 
-        cout << "\t\t Process P" << cur_process.id << " is starting the election" << endl;
         // current process will start the election
         cur_process.start_election(group);
 
@@ -100,9 +105,6 @@ int main()
 
             continue;
         }
-        cout << "-------------------------------------------------------------------------------------" << endl;
-        cout << "\t\tProcess P" << cur_process.id << " is the new coordinator" << endl;
-        cout << "-------------------------------------------------------------------------------------" << endl;
 
         // send coordinator message to the group
         cur_process.send_coordinator_message(group);
