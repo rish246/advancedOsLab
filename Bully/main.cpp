@@ -31,18 +31,23 @@ public:
     {
         for (int i = this->id + 1; i < group.size(); i++)
         {
-
+            cout << "P" << this->id << " --> Election message sent to process P" << i << endl;
             // send an election message to processes to the right of current process
             // count the number of replies recieved from them
             // each process to the right will receive the message from current process
-            this->n_replies += group[i].recieve_message(MESSAGE_ELECTION, this->id);
+            int process_response = group[i].recieve_message(MESSAGE_ELECTION, this->id);
+            if (process_response == 1)
+            {
+                this->n_replies++;
+                cout << "P" << this->id << " --> Accept message recieved from process P" << this->id << endl;
+            }
         }
     }
 
     void send_coordinator_message(vector<Process> &group)
     {
-        cout << "Process P" << this->id << " is sending coordinator message to the group" << endl;
-        for (int i = this->id; i >= 0; i--)
+        cout << "P" << this->id << " --> Sending coordinator message to the group" << endl;
+        for (int i = this->id - 1; i >= 0; i--)
         {
             group[i].recieve_message(MESSAGE_COORDINATOR, this->id);
         }
@@ -52,13 +57,12 @@ public:
     {
         if (type == MESSAGE_ELECTION)
         {
-            cout << "Election message recieved from Process : P" << id << endl;
             return (this->is_active);
         }
         // type == message coordinator
         else if (type == MESSAGE_COORDINATOR)
         {
-            cout << "Coordinator message recieved from Process : P" << id << endl;
+            cout << "P" << this->id << " --> Coordinator message recieved from Process : P" << id << endl;
             return 0;
         }
     }
@@ -81,21 +85,29 @@ int main()
 
     for (int i = 0; i < group.size(); i++)
     {
+        cout << "-------------------------------------------------------------------------------------" << endl;
         Process &cur_process = group[i];
 
+        cout << "\t\t Process P" << cur_process.id << " is starting the election" << endl;
         // current process will start the election
         cur_process.start_election(group);
 
-        cout << cur_process.n_replies << endl;
-
         // if it recieved any replies in the time bound, it is not the coordinator and process continues
         if (cur_process.n_replies > 0)
-            continue;
+        {
+            cout << "Process P" << cur_process.id << " recieved " << cur_process.n_replies << " replies. Hence it cannot be the coordinator" << endl;
+            cout << "-------------------------------------------------------------------------------------" << endl;
 
-        cout << "Process P" << cur_process.id << " is the new coordinator" << endl;
+            continue;
+        }
+
+        cout << "-------------------------------------------------------------------" << endl;
+        cout << "\t\tProcess P" << cur_process.id << " is the new coordinator" << endl;
+        cout << "-------------------------------------------------------------------" << endl;
 
         // send coordinator message to the group
         cur_process.send_coordinator_message(group);
+        cout << "-------------------------------------------------------------------------------------" << endl;
 
         // end the election
         break;
