@@ -7,3 +7,7 @@ List of Experiments:
 1. Tcp-ip server
 1. Christian's algorithm for external synchronisation
 1. Lamport's logical clock algorithm
+1. Ring based mutual exclusion algorithm
+1. Ring based election algorithm
+1. Ricart and Agrawal's multicast algorithm
+1. Bully Algorithm
